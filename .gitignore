@@ -1,0 +1,12 @@
+# Mac clutter
+.DS_Store
+
+# Secrets 
+.env
+*.local
+
+# Dependencies 
+node_modules/
+
+# Logs and temp files
+*.log
