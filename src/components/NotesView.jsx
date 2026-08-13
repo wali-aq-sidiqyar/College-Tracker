@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
-import { addChild, createFolder, removeNode, renameNode } from '../utils/folderTree'
+import { addChild, countDescendants, createFolder, removeNode, renameNode } from '../utils/folderTree'
 import FolderTree from './FolderTree'
+import ConfirmDialog from './ConfirmDialog'
 
 export default function NotesView() {
   const [folders, setFolders] = useLocalStorage('college-tracker-notes-folders', [])
   const [expandedIds, setExpandedIds] = useState(() => new Set())
   const [renamingId, setRenamingId] = useState(null)
   const [addingParentId, setAddingParentId] = useState(undefined)
-  const [confirmingDeleteId, setConfirmingDeleteId] = useState(null)
+  const [pendingDelete, setPendingDelete] = useState(null)
 
   function expand(id) {
     setExpandedIds((prev) => new Set(prev).add(id))
@@ -26,7 +27,6 @@ export default function NotesView() {
   function startAdd(parentId) {
     if (parentId !== null) expand(parentId)
     setRenamingId(null)
-    setConfirmingDeleteId(null)
     setAddingParentId(parentId)
   }
 
@@ -37,7 +37,6 @@ export default function NotesView() {
 
   function startRename(id) {
     setAddingParentId(undefined)
-    setConfirmingDeleteId(null)
     setRenamingId(id)
   }
 
@@ -46,15 +45,15 @@ export default function NotesView() {
     setRenamingId(null)
   }
 
-  function startDelete(id) {
+  function startDelete(node) {
     setAddingParentId(undefined)
     setRenamingId(null)
-    setConfirmingDeleteId(id)
+    setPendingDelete({ id: node.id, name: node.name, descendantCount: countDescendants(node) })
   }
 
-  function handleDelete(id) {
-    setFolders((prev) => removeNode(prev, id))
-    setConfirmingDeleteId(null)
+  function confirmDelete() {
+    setFolders((prev) => removeNode(prev, pendingDelete.id))
+    setPendingDelete(null)
   }
 
   const showTree = folders.length > 0 || addingParentId === null
@@ -81,14 +80,23 @@ export default function NotesView() {
           onStartAdd={startAdd}
           onAdd={handleAdd}
           onCancelAdd={() => setAddingParentId(undefined)}
-          confirmingDeleteId={confirmingDeleteId}
           onStartDelete={startDelete}
-          onDelete={handleDelete}
-          onCancelDelete={() => setConfirmingDeleteId(null)}
         />
       ) : (
         <p className="empty-state">No folders yet. Create one to start organizing notes.</p>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={`Delete “${pendingDelete?.name}”?`}
+        description={
+          pendingDelete?.descendantCount > 0
+            ? `This will also delete ${pendingDelete.descendantCount} subfolder${pendingDelete.descendantCount === 1 ? '' : 's'}. This can't be undone.`
+            : "This can't be undone."
+        }
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   )
 }

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { countDescendants } from '../utils/folderTree'
 
 export default function FolderTree({
   nodes,
@@ -15,10 +14,7 @@ export default function FolderTree({
   onStartAdd,
   onAdd,
   onCancelAdd,
-  confirmingDeleteId,
   onStartDelete,
-  onDelete,
-  onCancelDelete,
 }) {
   return (
     <ul className={`folder-list${nested ? ' folder-list-nested' : ''}`}>
@@ -40,9 +36,7 @@ export default function FolderTree({
         const isExpanded = expandedIds.has(node.id)
         const hasChildren = node.children.length > 0
         const isRenaming = renamingId === node.id
-        const isConfirmingDelete = confirmingDeleteId === node.id
         const showChildren = isExpanded && (hasChildren || addingParentId === node.id)
-        const descendantCount = isConfirmingDelete ? countDescendants(node) : 0
 
         return (
           <li key={node.id} className="folder-row">
@@ -71,7 +65,7 @@ export default function FolderTree({
                 </button>
               )}
 
-              {!isRenaming && !isConfirmingDelete && (
+              {!isRenaming && (
                 <div className="folder-row-actions">
                   <button type="button" className="ghost" onClick={() => onStartAdd(node.id)}>
                     Add
@@ -79,32 +73,12 @@ export default function FolderTree({
                   <button type="button" className="ghost" onClick={() => onStartRename(node.id)}>
                     Rename
                   </button>
-                  <button type="button" className="ghost danger" onClick={() => onStartDelete(node.id)}>
+                  <button type="button" className="ghost danger" onClick={() => onStartDelete(node)}>
                     Delete
                   </button>
                 </div>
               )}
             </div>
-
-            {isConfirmingDelete && (
-              <div className="folder-delete-confirm">
-                <span>
-                  Delete &ldquo;{node.name}&rdquo;
-                  {descendantCount > 0
-                    ? ` and its ${descendantCount} subfolder${descendantCount === 1 ? '' : 's'}`
-                    : ''}
-                  ? This can&rsquo;t be undone.
-                </span>
-                <div className="folder-delete-confirm-actions">
-                  <button type="button" className="danger-solid" onClick={() => onDelete(node.id)}>
-                    Delete
-                  </button>
-                  <button type="button" className="secondary" onClick={onCancelDelete}>
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
 
             {showChildren && (
               <FolderTree
@@ -121,10 +95,7 @@ export default function FolderTree({
                 onStartAdd={onStartAdd}
                 onAdd={onAdd}
                 onCancelAdd={onCancelAdd}
-                confirmingDeleteId={confirmingDeleteId}
                 onStartDelete={onStartDelete}
-                onDelete={onDelete}
-                onCancelDelete={onCancelDelete}
               />
             )}
           </li>
