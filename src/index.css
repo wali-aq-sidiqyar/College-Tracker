@@ -149,6 +149,17 @@ button.active {
   border-color: var(--rail);
 }
 
+button.danger-solid {
+  background: var(--flag);
+  color: var(--rail-contrast);
+  border-color: var(--flag);
+}
+
+button.danger-solid:hover {
+  background: var(--flag-hover);
+  border-color: var(--flag-hover);
+}
+
 button.ghost {
   background: transparent;
   color: var(--ink-soft);
