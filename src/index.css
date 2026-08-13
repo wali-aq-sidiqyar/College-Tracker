@@ -18,6 +18,15 @@
   --flag-hover: #a63f10;
   --flag-soft: #fbe9dd;
 
+  --tag-quiz: #0f7a72;
+  --tag-quiz-soft: #e4f4f2;
+  --tag-paper: #b3355c;
+  --tag-paper-soft: #fbe7ee;
+  --tag-project: #3f7d32;
+  --tag-project-soft: #eaf4e6;
+  --tag-homework: #a6790a;
+  --tag-homework-soft: #f7eed9;
+
   --shadow-sm: 0 1px 2px rgba(22, 26, 35, 0.05), 0 1px 1px rgba(22, 26, 35, 0.04);
   --shadow-md: 0 8px 20px rgba(22, 26, 35, 0.08), 0 2px 6px rgba(22, 26, 35, 0.05);
 
@@ -72,6 +81,15 @@
     --flag: #ff9a5c;
     --flag-hover: #ffb07e;
     --flag-soft: #3a2417;
+
+    --tag-quiz: #4fd0c4;
+    --tag-quiz-soft: #163330;
+    --tag-paper: #ff85ab;
+    --tag-paper-soft: #3a1a29;
+    --tag-project: #8fd66b;
+    --tag-project-soft: #203a1a;
+    --tag-homework: #e0b23e;
+    --tag-homework-soft: #3a2c10;
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
     --shadow-md: 0 8px 22px rgba(0, 0, 0, 0.4);
@@ -153,12 +171,13 @@ button.ghost.danger:hover {
 
 button:focus-visible,
 input:focus-visible,
-select:focus-visible {
+select:focus-visible,
+textarea:focus-visible {
   outline: 2px solid var(--rail);
   outline-offset: 2px;
 }
 
-input, select {
+input, select, textarea {
   font: inherit;
   padding: var(--sp-2) var(--sp-3);
   border: 1px solid var(--line-strong);
@@ -168,7 +187,13 @@ input, select {
   transition: border-color 120ms ease;
 }
 
-input:hover, select:hover {
+textarea {
+  resize: vertical;
+  min-height: 4.5em;
+  line-height: 1.5;
+}
+
+input:hover, select:hover, textarea:hover {
   border-color: var(--ink-faint);
 }
 

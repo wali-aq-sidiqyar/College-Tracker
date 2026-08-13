@@ -107,7 +107,7 @@
 
 .item-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--sp-3);
   padding: var(--sp-3) var(--sp-4);
@@ -128,6 +128,30 @@
 
 .item-row-exam {
   border-left-color: var(--flag);
+}
+
+.item-row-quiz {
+  border-left-color: var(--tag-quiz);
+}
+
+.item-row-paper {
+  border-left-color: var(--tag-paper);
+}
+
+.item-row-project {
+  border-left-color: var(--tag-project);
+}
+
+.item-row-homework {
+  border-left-color: var(--tag-homework);
+}
+
+.item-row-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  flex: 1 1 260px;
+  min-width: 0;
 }
 
 .item-row-main {
@@ -154,6 +178,26 @@
   background: var(--flag-soft);
 }
 
+.item-badge-quiz {
+  color: var(--tag-quiz);
+  background: var(--tag-quiz-soft);
+}
+
+.item-badge-paper {
+  color: var(--tag-paper);
+  background: var(--tag-paper-soft);
+}
+
+.item-badge-project {
+  color: var(--tag-project);
+  background: var(--tag-project-soft);
+}
+
+.item-badge-homework {
+  color: var(--tag-homework);
+  background: var(--tag-homework-soft);
+}
+
 .item-title {
   font-weight: 600;
 }
@@ -161,6 +205,27 @@
 .item-class {
   color: var(--ink-soft);
   font-size: var(--fs-sm);
+}
+
+.item-estimate {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+  background: var(--surface-sunken);
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+
+.item-description {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .item-row-actions {
@@ -306,6 +371,26 @@
 .calendar-chip-exam {
   background: var(--flag-soft);
   color: var(--flag);
+}
+
+.calendar-chip-quiz {
+  background: var(--tag-quiz-soft);
+  color: var(--tag-quiz);
+}
+
+.calendar-chip-paper {
+  background: var(--tag-paper-soft);
+  color: var(--tag-paper);
+}
+
+.calendar-chip-project {
+  background: var(--tag-project-soft);
+  color: var(--tag-project);
+}
+
+.calendar-chip-homework {
+  background: var(--tag-homework-soft);
+  color: var(--tag-homework);
 }
 
 @keyframes row-in {

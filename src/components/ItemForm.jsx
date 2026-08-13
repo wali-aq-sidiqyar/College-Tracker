@@ -1,13 +1,22 @@
 import { useEffect, useState } from 'react'
 import { todayISO } from '../utils/date'
+import { ITEM_TYPES } from '../utils/itemTypes'
 
-const emptyForm = { type: 'assignment', title: '', className: '', date: todayISO() }
+const emptyForm = {
+  type: 'assignment',
+  title: '',
+  className: '',
+  date: todayISO(),
+  description: '',
+  estimateAmount: '',
+  estimateUnit: 'min',
+}
 
 export default function ItemForm({ editingItem, onSave, onCancel }) {
   const [form, setForm] = useState(emptyForm)
 
   useEffect(() => {
-    setForm(editingItem ? { ...editingItem } : emptyForm)
+    setForm(editingItem ? { ...emptyForm, ...editingItem } : emptyForm)
   }, [editingItem])
 
   function handleChange(field, value) {
@@ -23,7 +32,7 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
 
   return (
     <form className="item-form" onSubmit={handleSubmit}>
-      <h2>{editingItem ? 'Edit item' : 'Add assignment or exam'}</h2>
+      <h2>{editingItem ? 'Edit item' : 'Add item'}</h2>
 
       <div className="item-form-row">
         <label>
@@ -32,8 +41,11 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
             value={form.type}
             onChange={(e) => handleChange('type', e.target.value)}
           >
-            <option value="assignment">Assignment</option>
-            <option value="exam">Exam</option>
+            {ITEM_TYPES.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </label>
 
@@ -68,6 +80,42 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
             value={form.className}
             onChange={(e) => handleChange('className', e.target.value)}
           />
+        </label>
+      </div>
+
+      <div className="item-form-row">
+        <label>
+          Description
+          <textarea
+            placeholder="Notes, what's covered, submission details…"
+            value={form.description}
+            onChange={(e) => handleChange('description', e.target.value)}
+          />
+        </label>
+      </div>
+
+      <div className="item-form-row">
+        <label>
+          Estimated time
+          <input
+            type="number"
+            min="0"
+            step="0.5"
+            placeholder="e.g. 45"
+            value={form.estimateAmount}
+            onChange={(e) => handleChange('estimateAmount', e.target.value)}
+          />
+        </label>
+
+        <label>
+          Unit
+          <select
+            value={form.estimateUnit}
+            onChange={(e) => handleChange('estimateUnit', e.target.value)}
+          >
+            <option value="min">Minutes</option>
+            <option value="hr">Hours</option>
+          </select>
         </label>
       </div>
 

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { buildMonthGrid, monthLabel, todayISO, WEEKDAY_LABELS } from '../utils/date'
+import { formatEstimate } from '../utils/estimate'
 
 export default function CalendarView({ items, onEdit, onDelete }) {
   const today = new Date()
@@ -46,17 +47,25 @@ export default function CalendarView({ items, onEdit, onDelete }) {
           >
             <span className="calendar-cell-daynum">{cell.date.getDate()}</span>
             <div className="calendar-cell-items">
-              {(itemsByDate[cell.iso] || []).map((item) => (
-                <button
-                  key={item.id}
-                  className={`calendar-chip calendar-chip-${item.type}`}
-                  onClick={() => onEdit(item.id)}
-                  onDoubleClick={() => onDelete(item.id)}
-                  title={`${item.title}${item.className ? ' — ' + item.className : ''} (double-click to delete)`}
-                >
-                  {item.title}
-                </button>
-              ))}
+              {(itemsByDate[cell.iso] || []).map((item) => {
+                const estimateLabel = formatEstimate(item.estimateAmount, item.estimateUnit)
+                const details = [
+                  item.className,
+                  estimateLabel,
+                  item.description,
+                ].filter(Boolean).join(' — ')
+                return (
+                  <button
+                    key={item.id}
+                    className={`calendar-chip calendar-chip-${item.type}`}
+                    onClick={() => onEdit(item.id)}
+                    onDoubleClick={() => onDelete(item.id)}
+                    title={`${item.title}${details ? ' — ' + details : ''} (double-click to delete)`}
+                  >
+                    {item.title}
+                  </button>
+                )
+              })}
             </div>
           </div>
         ))}
