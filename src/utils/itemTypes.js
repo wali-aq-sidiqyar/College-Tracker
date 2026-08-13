@@ -6,3 +6,10 @@ export const ITEM_TYPES = [
   { value: 'project', label: 'Project' },
   { value: 'exam', label: 'Exam' },
 ]
+
+// Kind is independent of type: a quiz can be a timed in-class Event or a
+// take-home Task, an exam usually an Event, homework usually a Task, etc.
+export const ITEM_KINDS = [
+  { value: 'event', label: 'Event' },
+  { value: 'task', label: 'Task' },
+]

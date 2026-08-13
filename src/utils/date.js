@@ -76,3 +76,28 @@ export function todayBoardLabel() {
     day: 'numeric',
   })
 }
+
+export function addDays(date, days) {
+  const result = new Date(date)
+  result.setDate(result.getDate() + days)
+  return result
+}
+
+export function startOfWeek(date) {
+  const result = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  result.setDate(result.getDate() - result.getDay())
+  return result
+}
+
+export function formatWeekRangeLabel(start, end) {
+  const startMonth = start.toLocaleDateString(undefined, { month: 'short' })
+  const endMonth = end.toLocaleDateString(undefined, { month: 'short' })
+  const year = end.getFullYear()
+  return startMonth === endMonth
+    ? `${startMonth} ${start.getDate()} – ${end.getDate()}, ${year}`
+    : `${startMonth} ${start.getDate()} – ${endMonth} ${end.getDate()}, ${year}`
+}
+
+export function formatDayHeaderLabel(date) {
+  return date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })
+}

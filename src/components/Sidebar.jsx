@@ -4,6 +4,7 @@ const NAV_ITEMS = [
   { key: 'calendar', label: 'Calendar', icon: CalendarIcon },
   { key: 'assignments', label: 'Assignments', icon: AssignmentsIcon },
   { key: 'notes', label: 'Notes', icon: NotesIcon },
+  { key: 'add', label: 'Add', icon: PlusIcon },
 ]
 
 export default function Sidebar({ activeTab, onSelect }) {
@@ -94,6 +95,15 @@ function NotesIcon() {
       <path d="M15 2v5h5" />
       <line x1="8" y1="13" x2="16" y2="13" />
       <line x1="8" y1="17" x2="13" y2="17" />
+    </svg>
+  )
+}
+
+function PlusIcon() {
+  return (
+    <svg {...iconProps()}>
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
   )
 }

@@ -1,84 +1,104 @@
 import { useState } from 'react'
-import { buildMonthGrid, monthLabel, todayISO, WEEKDAY_LABELS } from '../utils/date'
-import { formatEstimate } from '../utils/estimate'
+import { addDays, formatDayHeaderLabel, formatWeekRangeLabel, monthLabel, startOfWeek } from '../utils/date'
+import MonthView from './MonthView'
+import TimeGridView from './TimeGridView'
+import ConfirmDialog from './ConfirmDialog'
+
+const GRANULARITIES = [
+  { value: 'month', label: 'Month' },
+  { value: 'week', label: 'Week' },
+  { value: 'day', label: 'Day' },
+]
 
 export default function CalendarView({ items, onEdit, onDelete }) {
-  const today = new Date()
-  const [year, setYear] = useState(today.getFullYear())
-  const [month, setMonth] = useState(today.getMonth())
+  const [granularity, setGranularity] = useState('month')
+  const [anchorDate, setAnchorDate] = useState(() => new Date())
+  const [pendingDeleteId, setPendingDeleteId] = useState(null)
+  const pendingItem = items.find((item) => item.id === pendingDeleteId)
 
-  const cells = buildMonthGrid(year, month)
-  const itemsByDate = groupByDate(items)
-  const todayIso = todayISO()
-
-  function goToPrevMonth() {
-    const date = new Date(year, month - 1, 1)
-    setYear(date.getFullYear())
-    setMonth(date.getMonth())
+  function goToday() {
+    setAnchorDate(new Date())
   }
 
-  function goToNextMonth() {
-    const date = new Date(year, month + 1, 1)
-    setYear(date.getFullYear())
-    setMonth(date.getMonth())
+  function goPrev() {
+    setAnchorDate((prev) => shiftAnchor(prev, granularity, -1))
+  }
+
+  function goNext() {
+    setAnchorDate((prev) => shiftAnchor(prev, granularity, 1))
   }
 
   return (
     <div className="calendar-view">
       <div className="calendar-header">
-        <button className="secondary" onClick={goToPrevMonth}>&larr; Prev</button>
-        <h2>{monthLabel(year, month)}</h2>
-        <button className="secondary" onClick={goToNextMonth}>Next &rarr;</button>
+        <div className="calendar-header-nav">
+          <button type="button" className="secondary" onClick={goPrev} aria-label="Previous">&larr;</button>
+          <button type="button" className="secondary" onClick={goToday}>Today</button>
+          <button type="button" className="secondary" onClick={goNext} aria-label="Next">&rarr;</button>
+        </div>
+
+        <h2>{headerLabel(anchorDate, granularity)}</h2>
+
+        <div className="segmented" role="group" aria-label="Calendar view">
+          {GRANULARITIES.map((g) => (
+            <button
+              key={g.value}
+              type="button"
+              className={granularity === g.value ? 'active' : ''}
+              onClick={() => setGranularity(g.value)}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="calendar-grid">
-        {WEEKDAY_LABELS.map((label) => (
-          <div key={label} className="calendar-weekday">{label}</div>
-        ))}
+      {granularity === 'month' ? (
+        <MonthView
+          items={items}
+          anchorDate={anchorDate}
+          onEdit={onEdit}
+          onRequestDelete={setPendingDeleteId}
+        />
+      ) : (
+        <TimeGridView
+          items={items}
+          anchorDate={anchorDate}
+          days={granularity === 'week' ? 7 : 1}
+          onEdit={onEdit}
+          onRequestDelete={setPendingDeleteId}
+        />
+      )}
 
-        {cells.map((cell) => (
-          <div
-            key={cell.iso}
-            className={[
-              'calendar-cell',
-              cell.inCurrentMonth ? '' : 'calendar-cell-outside',
-              cell.iso === todayIso ? 'calendar-cell-today' : '',
-            ].join(' ').trim()}
-          >
-            <span className="calendar-cell-daynum">{cell.date.getDate()}</span>
-            <div className="calendar-cell-items">
-              {(itemsByDate[cell.iso] || []).map((item) => {
-                const estimateLabel = formatEstimate(item.estimateAmount, item.estimateUnit)
-                const details = [
-                  item.className,
-                  estimateLabel,
-                  item.description,
-                ].filter(Boolean).join(' — ')
-                return (
-                  <button
-                    key={item.id}
-                    className={`calendar-chip calendar-chip-${item.type}`}
-                    onClick={() => onEdit(item.id)}
-                    onDoubleClick={() => onDelete(item.id)}
-                    title={`${item.title}${details ? ' — ' + details : ''} (double-click to delete)`}
-                  >
-                    {item.title}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
+      <ConfirmDialog
+        open={pendingItem != null}
+        title={`Delete “${pendingItem?.title}”?`}
+        description="This can't be undone."
+        onConfirm={() => {
+          onDelete(pendingDeleteId)
+          setPendingDeleteId(null)
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </div>
   )
 }
 
-function groupByDate(items) {
-  const map = {}
-  for (const item of items) {
-    if (!map[item.date]) map[item.date] = []
-    map[item.date].push(item)
+function shiftAnchor(date, granularity, direction) {
+  if (granularity === 'month') {
+    return new Date(date.getFullYear(), date.getMonth() + direction, 1)
   }
-  return map
+  if (granularity === 'week') {
+    return addDays(date, direction * 7)
+  }
+  return addDays(date, direction)
+}
+
+function headerLabel(date, granularity) {
+  if (granularity === 'month') return monthLabel(date.getFullYear(), date.getMonth())
+  if (granularity === 'week') {
+    const start = startOfWeek(date)
+    return formatWeekRangeLabel(start, addDays(start, 6))
+  }
+  return formatDayHeaderLabel(date)
 }

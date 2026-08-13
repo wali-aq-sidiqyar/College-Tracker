@@ -1,8 +1,13 @@
+import { useState } from 'react'
 import { formatDateDisplay, relativeDayLabel, sortByDate } from '../utils/date'
 import { formatEstimate } from '../utils/estimate'
+import { formatTimeRange } from '../utils/eventTime'
+import ConfirmDialog from './ConfirmDialog'
 
 export default function ListView({ items, onEdit, onDelete }) {
+  const [pendingDeleteId, setPendingDeleteId] = useState(null)
   const sorted = sortByDate(items)
+  const pendingItem = sorted.find((item) => item.id === pendingDeleteId)
 
   if (sorted.length === 0) {
     return <p className="empty-state">Nothing here yet. Add an item above.</p>
@@ -13,7 +18,7 @@ export default function ListView({ items, onEdit, onDelete }) {
       {sorted.map((item, index) => {
         const relative = relativeDayLabel(item.date)
         const isOverdue = relative.endsWith('ago')
-        const estimateLabel = formatEstimate(item.estimateAmount, item.estimateUnit)
+        const estimateLabel = item.kind === 'task' ? formatEstimate(item.estimateAmount, item.estimateUnit) : ''
         return (
           <li
             key={item.id}
@@ -32,18 +37,32 @@ export default function ListView({ items, onEdit, onDelete }) {
             <div className="item-row-actions">
               <span className="item-date-block">
                 <span className="item-date">{formatDateDisplay(item.date)}</span>
+                {item.kind === 'event' && (
+                  <span className="item-time">{formatTimeRange(item.startTime, item.endTime)}</span>
+                )}
                 <span className={`item-relative${isOverdue ? ' item-relative-overdue' : ''}`}>
                   {relative}
                 </span>
               </span>
               <button className="ghost" onClick={() => onEdit(item.id)}>Edit</button>
-              <button className="ghost danger" onClick={() => onDelete(item.id)}>
+              <button className="ghost danger" onClick={() => setPendingDeleteId(item.id)}>
                 Delete
               </button>
             </div>
           </li>
         )
       })}
+
+      <ConfirmDialog
+        open={pendingItem != null}
+        title={`Delete “${pendingItem?.title}”?`}
+        description="This can't be undone."
+        onConfirm={() => {
+          onDelete(pendingDeleteId)
+          setPendingDeleteId(null)
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
     </ul>
   )
 }

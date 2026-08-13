@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
 import { todayISO } from '../utils/date'
-import { ITEM_TYPES } from '../utils/itemTypes'
+import { ITEM_KINDS, ITEM_TYPES } from '../utils/itemTypes'
+import TimeEntryInput from './TimeEntryInput'
 
 const emptyForm = {
+  kind: 'task',
   type: 'assignment',
   title: '',
   className: '',
   date: todayISO(),
+  startTime: '',
+  endTime: '',
   description: '',
   estimateAmount: '',
   estimateUnit: 'min',
@@ -23,16 +27,46 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
+  function handleKindChange(kind) {
+    setForm((prev) => ({
+      ...prev,
+      kind,
+      startTime: kind === 'event' ? prev.startTime : '',
+      endTime: kind === 'event' ? prev.endTime : '',
+      estimateAmount: kind === 'task' ? prev.estimateAmount : '',
+      estimateUnit: kind === 'task' ? prev.estimateUnit : 'min',
+    }))
+  }
+
   function handleSubmit(e) {
     e.preventDefault()
     if (!form.title.trim() || !form.date) return
-    onSave(form)
+    if (form.kind === 'event' && (!form.startTime || !form.endTime)) return
+    // Events never carry an estimate, even if the item being edited had one
+    // saved before this field was removed for events.
+    const payload = form.kind === 'event' ? { ...form, estimateAmount: '', estimateUnit: 'min' } : form
+    onSave(payload)
     setForm(emptyForm)
   }
 
   return (
     <form className="item-form" onSubmit={handleSubmit}>
       <h2>{editingItem ? 'Edit item' : 'Add item'}</h2>
+
+      <div className="item-form-row">
+        <div className="segmented" role="group" aria-label="Kind">
+          {ITEM_KINDS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={form.kind === option.value ? 'active' : ''}
+              onClick={() => handleKindChange(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="item-form-row">
         <label>
@@ -59,6 +93,28 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
           />
         </label>
       </div>
+
+      {form.kind === 'event' && (
+        <div className="item-form-row">
+          <label>
+            Start time
+            <TimeEntryInput
+              value={form.startTime}
+              onChange={(value) => handleChange('startTime', value)}
+              required
+            />
+          </label>
+
+          <label>
+            End time
+            <TimeEntryInput
+              value={form.endTime}
+              onChange={(value) => handleChange('endTime', value)}
+              required
+            />
+          </label>
+        </div>
+      )}
 
       <div className="item-form-row">
         <label>
@@ -94,30 +150,32 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
         </label>
       </div>
 
-      <div className="item-form-row">
-        <label>
-          Estimated time
-          <input
-            type="number"
-            min="0"
-            step="0.5"
-            placeholder="e.g. 45"
-            value={form.estimateAmount}
-            onChange={(e) => handleChange('estimateAmount', e.target.value)}
-          />
-        </label>
+      {form.kind === 'task' && (
+        <div className="item-form-row">
+          <label>
+            Estimated time
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              placeholder="e.g. 45"
+              value={form.estimateAmount}
+              onChange={(e) => handleChange('estimateAmount', e.target.value)}
+            />
+          </label>
 
-        <label>
-          Unit
-          <select
-            value={form.estimateUnit}
-            onChange={(e) => handleChange('estimateUnit', e.target.value)}
-          >
-            <option value="min">Minutes</option>
-            <option value="hr">Hours</option>
-          </select>
-        </label>
-      </div>
+          <label>
+            Unit
+            <select
+              value={form.estimateUnit}
+              onChange={(e) => handleChange('estimateUnit', e.target.value)}
+            >
+              <option value="min">Minutes</option>
+              <option value="hr">Hours</option>
+            </select>
+          </label>
+        </div>
+      )}
 
       <div className="item-form-actions">
         <button type="submit">{editingItem ? 'Save changes' : 'Add item'}</button>
