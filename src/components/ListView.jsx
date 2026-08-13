@@ -1,4 +1,4 @@
-import { formatDateDisplay, sortByDate } from '../utils/date'
+import { formatDateDisplay, relativeDayLabel, sortByDate } from '../utils/date'
 
 export default function ListView({ items, onEdit, onDelete }) {
   const sorted = sortByDate(items)
@@ -9,22 +9,35 @@ export default function ListView({ items, onEdit, onDelete }) {
 
   return (
     <ul className="item-list">
-      {sorted.map((item) => (
-        <li key={item.id} className={`item-row item-row-${item.type}`}>
-          <div className="item-row-main">
-            <span className={`item-badge item-badge-${item.type}`}>{item.type}</span>
-            <span className="item-title">{item.title}</span>
-            {item.className && <span className="item-class">{item.className}</span>}
-          </div>
-          <div className="item-row-actions">
-            <span className="item-date">{formatDateDisplay(item.date)}</span>
-            <button className="ghost" onClick={() => onEdit(item.id)}>Edit</button>
-            <button className="ghost danger" onClick={() => onDelete(item.id)}>
-              Delete
-            </button>
-          </div>
-        </li>
-      ))}
+      {sorted.map((item, index) => {
+        const relative = relativeDayLabel(item.date)
+        const isOverdue = relative.endsWith('ago')
+        return (
+          <li
+            key={item.id}
+            className={`item-row item-row-${item.type}`}
+            style={{ '--row-index': index }}
+          >
+            <div className="item-row-main">
+              <span className={`item-badge item-badge-${item.type}`}>{item.type}</span>
+              <span className="item-title">{item.title}</span>
+              {item.className && <span className="item-class">{item.className}</span>}
+            </div>
+            <div className="item-row-actions">
+              <span className="item-date-block">
+                <span className="item-date">{formatDateDisplay(item.date)}</span>
+                <span className={`item-relative${isOverdue ? ' item-relative-overdue' : ''}`}>
+                  {relative}
+                </span>
+              </span>
+              <button className="ghost" onClick={() => onEdit(item.id)}>Edit</button>
+              <button className="ghost danger" onClick={() => onDelete(item.id)}>
+                Delete
+              </button>
+            </div>
+          </li>
+        )
+      })}
     </ul>
   )
 }

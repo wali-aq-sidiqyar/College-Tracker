@@ -3,6 +3,7 @@ import { useLocalStorage } from './hooks/useLocalStorage'
 import ItemForm from './components/ItemForm'
 import ListView from './components/ListView'
 import CalendarView from './components/CalendarView'
+import { todayBoardLabel } from './utils/date'
 import './App.css'
 
 export default function App() {
@@ -29,20 +30,26 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>College Tracker</h1>
-        <div className="view-toggle">
-          <button
-            className={view === 'list' ? 'active' : 'secondary'}
-            onClick={() => setView('list')}
-          >
-            List
-          </button>
-          <button
-            className={view === 'calendar' ? 'active' : 'secondary'}
-            onClick={() => setView('calendar')}
-          >
-            Calendar
-          </button>
+        <div className="app-header-title">
+          <h1>College Tracker</h1>
+          <p className="app-tagline">What&rsquo;s due, what&rsquo;s next.</p>
+        </div>
+        <div className="app-header-controls">
+          <span className="today-chip">{todayBoardLabel()}</span>
+          <div className="view-toggle">
+            <button
+              className={view === 'list' ? 'active' : 'secondary'}
+              onClick={() => setView('list')}
+            >
+              List
+            </button>
+            <button
+              className={view === 'calendar' ? 'active' : 'secondary'}
+              onClick={() => setView('calendar')}
+            >
+              Calendar
+            </button>
+          </div>
         </div>
       </header>
 

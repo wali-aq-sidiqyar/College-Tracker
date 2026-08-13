@@ -53,3 +53,26 @@ export function buildMonthGrid(year, month) {
 export function sortByDate(items) {
   return [...items].sort((a, b) => a.date.localeCompare(b.date))
 }
+
+// Compact board-style countdown: "today", "in 3d", "5d ago".
+export function relativeDayLabel(isoDate) {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  const target = new Date(year, month - 1, day)
+  const today = new Date()
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  const diffDays = Math.round((target - todayMidnight) / 86400000)
+
+  if (diffDays === 0) return 'today'
+  if (diffDays === 1) return 'tomorrow'
+  if (diffDays === -1) return 'yesterday'
+  if (diffDays > 1) return `in ${diffDays}d`
+  return `${Math.abs(diffDays)}d ago`
+}
+
+export function todayBoardLabel() {
+  return new Date().toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  })
+}
