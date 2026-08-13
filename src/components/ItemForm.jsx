@@ -5,7 +5,7 @@ import TimeEntryInput from './TimeEntryInput'
 
 const emptyForm = {
   kind: 'task',
-  type: 'assignment',
+  type: 'Assignment',
   title: '',
   className: '',
   date: todayISO(),
@@ -42,9 +42,13 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
     e.preventDefault()
     if (!form.title.trim() || !form.date) return
     if (form.kind === 'event' && (!form.startTime || !form.endTime)) return
+    // An empty type field means the same thing as explicitly picking N/A.
+    const type = form.type.trim() || 'N/A'
     // Events never carry an estimate, even if the item being edited had one
     // saved before this field was removed for events.
-    const payload = form.kind === 'event' ? { ...form, estimateAmount: '', estimateUnit: 'min' } : form
+    const payload = form.kind === 'event'
+      ? { ...form, type, estimateAmount: '', estimateUnit: 'min' }
+      : { ...form, type }
     onSave(payload)
     setForm(emptyForm)
   }
@@ -71,16 +75,19 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
       <div className="item-form-row">
         <label>
           Type
-          <select
+          <input
+            type="text"
+            list="item-type-options"
+            placeholder="e.g. Assignment, or type your own"
             value={form.type}
             onChange={(e) => handleChange('type', e.target.value)}
-          >
+          />
+          <datalist id="item-type-options">
             {ITEM_TYPES.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
+              <option key={option.value} value={option.label} />
             ))}
-          </select>
+            <option value="N/A" />
+          </datalist>
         </label>
 
         <label>
@@ -172,6 +179,7 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
             >
               <option value="min">Minutes</option>
               <option value="hr">Hours</option>
+              <option value="n/a">N/A</option>
             </select>
           </label>
         </div>

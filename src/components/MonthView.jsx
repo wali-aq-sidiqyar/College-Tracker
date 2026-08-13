@@ -1,5 +1,6 @@
 import { buildMonthGrid, todayISO, WEEKDAY_LABELS } from '../utils/date'
 import { buildItemSummary, formatTimeCompact, parseTimeToMinutes } from '../utils/eventTime'
+import { typeSlug } from '../utils/itemTypes'
 
 export default function MonthView({ items, anchorDate, onEdit, onRequestDelete }) {
   const cells = buildMonthGrid(anchorDate.getFullYear(), anchorDate.getMonth())
@@ -29,7 +30,7 @@ export default function MonthView({ items, anchorDate, onEdit, onRequestDelete }
               return (
                 <button
                   key={item.id}
-                  className={`calendar-chip calendar-chip-${item.type}`}
+                  className={`calendar-chip calendar-chip-${typeSlug(item.type)}`}
                   onClick={() => onEdit(item.id)}
                   onDoubleClick={() => onRequestDelete(item.id)}
                   title={`${item.title}${summary ? ' — ' + summary : ''} (double-click to delete)`}

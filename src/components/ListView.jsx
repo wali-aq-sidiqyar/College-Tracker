@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { formatDateDisplay, relativeDayLabel, sortByDate } from '../utils/date'
 import { formatEstimate } from '../utils/estimate'
 import { formatTimeRange } from '../utils/eventTime'
+import { typeSlug } from '../utils/itemTypes'
 import ConfirmDialog from './ConfirmDialog'
 
 export default function ListView({ items, onEdit, onDelete }) {
@@ -19,15 +20,16 @@ export default function ListView({ items, onEdit, onDelete }) {
         const relative = relativeDayLabel(item.date)
         const isOverdue = relative.endsWith('ago')
         const estimateLabel = item.kind === 'task' ? formatEstimate(item.estimateAmount, item.estimateUnit) : ''
+        const slug = typeSlug(item.type)
         return (
           <li
             key={item.id}
-            className={`item-row item-row-${item.type}`}
+            className={`item-row item-row-${slug}`}
             style={{ '--row-index': index }}
           >
             <div className="item-row-content">
               <div className="item-row-main">
-                <span className={`item-badge item-badge-${item.type}`}>{item.type}</span>
+                <span className={`item-badge item-badge-${slug}`}>{item.type}</span>
                 <span className="item-title">{item.title}</span>
                 {item.className && <span className="item-class">{item.className}</span>}
                 {estimateLabel && <span className="item-estimate">{estimateLabel}</span>}

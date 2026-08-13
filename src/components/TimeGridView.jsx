@@ -6,6 +6,7 @@ import {
   layoutDayEvents,
   parseTimeToMinutes,
 } from '../utils/eventTime'
+import { typeSlug } from '../utils/itemTypes'
 
 const HOUR_HEIGHT = 48
 const HOURS = Array.from({ length: 24 }, (_, h) => h)
@@ -52,7 +53,7 @@ export default function TimeGridView({ items, anchorDate, days, onEdit, onReques
                 return (
                   <button
                     key={task.id}
-                    className={`calendar-chip calendar-chip-${task.type}`}
+                    className={`calendar-chip calendar-chip-${typeSlug(task.type)}`}
                     onClick={() => onEdit(task.id)}
                     onDoubleClick={() => onRequestDelete(task.id)}
                     title={`${task.title}${summary ? ' — ' + summary : ''} (double-click to delete)`}
@@ -97,7 +98,7 @@ export default function TimeGridView({ items, anchorDate, days, onEdit, onReques
                 return (
                   <button
                     key={event.id}
-                    className={`time-block time-block-${event.type}`}
+                    className={`time-block time-block-${typeSlug(event.type)}`}
                     style={{
                       top: `${(event.startMinutes / 60) * HOUR_HEIGHT}px`,
                       height: `${((event.endMinutes - event.startMinutes) / 60) * HOUR_HEIGHT}px`,
