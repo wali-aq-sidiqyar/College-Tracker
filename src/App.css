@@ -1,68 +1,120 @@
-.app {
-  padding: var(--sp-6) var(--sp-5) var(--sp-8);
-}
-
-.app-header {
+.app-shell {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: var(--sp-6);
-  gap: var(--sp-4);
-  flex-wrap: wrap;
-  padding-bottom: var(--sp-5);
-  border-bottom: 1px solid var(--line);
+  align-items: stretch;
+  min-height: 100vh;
 }
 
-.app-header-title h1 {
-  font-size: var(--fs-2xl);
+/* Sidebar */
+
+.sidebar {
+  flex: 0 0 232px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  padding: var(--sp-5) var(--sp-3);
+  background: var(--surface-sunken);
+  border-right: 1px solid var(--line);
 }
 
-.app-tagline {
-  margin: var(--sp-1) 0 0;
-  color: var(--ink-soft);
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-2);
+}
+
+.sidebar-mark {
+  flex-shrink: 0;
+}
+
+.sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar-app-name {
+  font-family: var(--font-display);
+  font-weight: 700;
   font-size: var(--fs-sm);
+  color: var(--ink);
+  line-height: 1.2;
 }
 
-.app-header-controls {
+.sidebar-tagline {
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-nav-item {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink-soft);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+
+.sidebar-nav-item svg {
+  flex-shrink: 0;
+}
+
+.sidebar-nav-item:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.sidebar-nav-item.active {
+  background: var(--rail-soft);
+  color: var(--rail);
+  box-shadow: inset 3px 0 0 0 var(--rail);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 0 var(--sp-2);
 }
 
 .today-chip {
+  display: inline-block;
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  background: var(--surface-sunken);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: var(--sp-1) var(--sp-3);
-}
-
-.view-toggle {
-  display: flex;
-  gap: 2px;
-  padding: 2px;
-  background: var(--surface-sunken);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-}
-
-.view-toggle button {
-  padding: var(--sp-1) var(--sp-3);
-  font-family: var(--font-display);
-  font-size: var(--fs-sm);
-}
-
-.view-toggle button.secondary {
-  border-color: transparent;
-}
-
-.view-toggle button.secondary:hover {
   background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-1) var(--sp-3);
+}
+
+/* Main content */
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  padding: var(--sp-6) var(--sp-6) var(--sp-8);
+}
+
+.app-header {
+  margin-bottom: var(--sp-6);
+  padding-bottom: var(--sp-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.app-header h1 {
+  font-size: var(--fs-2xl);
 }
 
 /* Item form */
@@ -411,12 +463,53 @@
 }
 
 @media (max-width: 640px) {
-  .app-header {
-    align-items: flex-start;
+  .app-shell {
+    flex-direction: column;
+    min-height: auto;
   }
 
-  .app-header-controls {
-    flex-wrap: wrap;
+  .sidebar {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--sp-3);
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    padding: var(--sp-3) var(--sp-4);
+  }
+
+  .sidebar-brand-text,
+  .sidebar-footer {
+    display: none;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    min-width: 0;
+    flex-direction: row;
+    gap: var(--sp-1);
+    overflow-x: auto;
+  }
+
+  .sidebar-nav-item {
+    width: auto;
+    white-space: nowrap;
+    gap: var(--sp-2);
+    padding: var(--sp-1) var(--sp-2);
+    font-size: var(--fs-xs);
+  }
+
+  .sidebar-nav-item svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sidebar-nav-item.active {
+    box-shadow: inset 0 -3px 0 0 var(--rail);
+  }
+
+  .app-main {
+    padding: var(--sp-5) var(--sp-4) var(--sp-7);
   }
 
   .item-form-row {

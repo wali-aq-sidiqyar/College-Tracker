@@ -1,14 +1,21 @@
 import { useState } from 'react'
 import { useLocalStorage } from './hooks/useLocalStorage'
+import Sidebar from './components/Sidebar'
 import ItemForm from './components/ItemForm'
 import ListView from './components/ListView'
 import CalendarView from './components/CalendarView'
-import { todayBoardLabel } from './utils/date'
+import NotesView from './components/NotesView'
 import './App.css'
+
+const TAB_TITLES = {
+  calendar: 'Calendar',
+  assignments: 'Assignments',
+  notes: 'Notes',
+}
 
 export default function App() {
   const [items, setItems] = useLocalStorage('college-tracker-items', [])
-  const [view, setView] = useState('list')
+  const [activeTab, setActiveTab] = useState('assignments')
   const [editingId, setEditingId] = useState(null)
 
   const editingItem = items.find((item) => item.id === editingId) || null
@@ -28,44 +35,32 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <div className="app-header-title">
-          <h1>College Tracker</h1>
-          <p className="app-tagline">What&rsquo;s due, what&rsquo;s next.</p>
-        </div>
-        <div className="app-header-controls">
-          <span className="today-chip">{todayBoardLabel()}</span>
-          <div className="view-toggle">
-            <button
-              className={view === 'list' ? 'active' : 'secondary'}
-              onClick={() => setView('list')}
-            >
-              List
-            </button>
-            <button
-              className={view === 'calendar' ? 'active' : 'secondary'}
-              onClick={() => setView('calendar')}
-            >
-              Calendar
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="app-shell">
+      <Sidebar activeTab={activeTab} onSelect={setActiveTab} />
 
-      <ItemForm
-        editingItem={editingItem}
-        onSave={handleSave}
-        onCancel={() => setEditingId(null)}
-      />
+      <div className="app-main">
+        <header className="app-header">
+          <h1>{TAB_TITLES[activeTab]}</h1>
+        </header>
 
-      <main>
-        {view === 'list' ? (
-          <ListView items={items} onEdit={setEditingId} onDelete={handleDelete} />
-        ) : (
-          <CalendarView items={items} onEdit={setEditingId} onDelete={handleDelete} />
+        {activeTab !== 'notes' && (
+          <ItemForm
+            editingItem={editingItem}
+            onSave={handleSave}
+            onCancel={() => setEditingId(null)}
+          />
         )}
-      </main>
+
+        <main>
+          {activeTab === 'calendar' && (
+            <CalendarView items={items} onEdit={setEditingId} onDelete={handleDelete} />
+          )}
+          {activeTab === 'assignments' && (
+            <ListView items={items} onEdit={setEditingId} onDelete={handleDelete} />
+          )}
+          {activeTab === 'notes' && <NotesView />}
+        </main>
+      </div>
     </div>
   )
 }
