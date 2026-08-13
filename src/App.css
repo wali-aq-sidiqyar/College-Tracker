@@ -4,6 +4,38 @@
   min-height: 100vh;
 }
 
+/* HUD corner-bracket frame — the signature device. Four glowing reticle
+   ticks mark a panel's corners; they brighten on hover/focus to read as
+   "locked on". Applied to elevated panels throughout the app. */
+
+.hud-frame {
+  position: relative;
+}
+
+.hud-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--rail), var(--rail)) top left / 13px 2px no-repeat,
+    linear-gradient(var(--rail), var(--rail)) top left / 2px 13px no-repeat,
+    linear-gradient(var(--rail), var(--rail)) top right / 13px 2px no-repeat,
+    linear-gradient(var(--rail), var(--rail)) top right / 2px 13px no-repeat,
+    linear-gradient(var(--rail), var(--rail)) bottom left / 13px 2px no-repeat,
+    linear-gradient(var(--rail), var(--rail)) bottom left / 2px 13px no-repeat,
+    linear-gradient(var(--rail), var(--rail)) bottom right / 13px 2px no-repeat,
+    linear-gradient(var(--rail), var(--rail)) bottom right / 2px 13px no-repeat;
+  opacity: 0.45;
+  filter: drop-shadow(0 0 3px var(--rail-glow));
+  transition: opacity 200ms ease;
+}
+
+.hud-frame:hover::after,
+.hud-frame:focus-within::after {
+  opacity: 1;
+}
+
 /* Sidebar */
 
 .sidebar {
@@ -14,6 +46,9 @@
   padding: var(--sp-5) var(--sp-3);
   background: var(--surface-sunken);
   border-right: 1px solid var(--line);
+  box-shadow: 1px 0 0 0 rgba(43, 227, 255, 0.05);
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar-brand {
@@ -25,6 +60,7 @@
 
 .sidebar-mark {
   flex-shrink: 0;
+  filter: drop-shadow(0 0 5px rgba(43, 227, 255, 0.65));
 }
 
 .sidebar-brand-text {
@@ -37,12 +73,15 @@
   font-family: var(--font-display);
   font-weight: 700;
   font-size: var(--fs-sm);
+  letter-spacing: 0.02em;
   color: var(--ink);
   line-height: 1.2;
 }
 
 .sidebar-tagline {
-  font-size: var(--fs-xs);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
   color: var(--ink-faint);
 }
 
@@ -63,6 +102,12 @@
   padding: var(--sp-2) var(--sp-3);
   border-radius: var(--radius-sm);
   text-align: left;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: background-color 120ms ease, color 120ms ease, box-shadow 150ms ease;
 }
 
 .sidebar-nav-item svg {
@@ -77,7 +122,7 @@
 .sidebar-nav-item.active {
   background: var(--rail-soft);
   color: var(--rail);
-  box-shadow: inset 3px 0 0 0 var(--rail);
+  box-shadow: inset 3px 0 0 0 var(--rail), 0 0 14px -4px var(--rail-glow);
 }
 
 .sidebar-footer {
@@ -86,7 +131,9 @@
 }
 
 .today-chip {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   font-weight: 500;
@@ -99,22 +146,47 @@
   padding: var(--sp-1) var(--sp-3);
 }
 
+.today-chip::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tag-project);
+  box-shadow: 0 0 6px var(--tag-project);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
 /* Main content */
 
 .app-main {
   flex: 1;
   min-width: 0;
   padding: var(--sp-6) var(--sp-6) var(--sp-8);
+  position: relative;
+  z-index: 1;
 }
 
 .app-header {
+  position: relative;
   margin-bottom: var(--sp-6);
   padding-bottom: var(--sp-5);
   border-bottom: 1px solid var(--line);
 }
 
+.app-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 96px;
+  height: 1px;
+  background: var(--rail);
+  box-shadow: 0 0 8px var(--rail-glow);
+}
+
 .app-header h1 {
   font-size: var(--fs-2xl);
+  letter-spacing: 0.01em;
 }
 
 /* Segmented toggle — reused for Event/Task and Month/Week/Day */
@@ -133,18 +205,20 @@
   background: transparent;
   border-color: transparent;
   color: var(--ink-soft);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
 }
 
 .segmented button:hover {
   background: var(--surface);
   color: var(--ink);
+  box-shadow: none;
 }
 
 .segmented button.active {
-  background: var(--rail);
-  color: var(--rail-contrast);
+  background: var(--rail-soft);
+  color: var(--rail);
   border-color: var(--rail);
+  box-shadow: 0 0 10px -3px var(--rail-glow);
 }
 
 /* Item form */
@@ -159,6 +233,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
+}
+
+.item-form.hud-frame::after {
+  opacity: 0.65;
 }
 
 .item-form h2 {
@@ -220,7 +298,7 @@
 }
 
 .item-row:hover {
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm), -3px 0 12px -6px var(--rail-glow);
   border-color: var(--line-strong);
 }
 
@@ -265,35 +343,41 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 2px 7px;
   color: var(--rail);
   background: var(--rail-soft);
+  border: 1px solid color-mix(in srgb, var(--rail) 45%, transparent);
 }
 
 .item-badge-exam {
   color: var(--flag);
   background: var(--flag-soft);
+  border-color: color-mix(in srgb, var(--flag) 45%, transparent);
 }
 
 .item-badge-quiz {
   color: var(--tag-quiz);
   background: var(--tag-quiz-soft);
+  border-color: color-mix(in srgb, var(--tag-quiz) 45%, transparent);
 }
 
 .item-badge-paper {
   color: var(--tag-paper);
   background: var(--tag-paper-soft);
+  border-color: color-mix(in srgb, var(--tag-paper) 45%, transparent);
 }
 
 .item-badge-project {
   color: var(--tag-project);
   background: var(--tag-project-soft);
+  border-color: color-mix(in srgb, var(--tag-project) 45%, transparent);
 }
 
 .item-badge-homework {
   color: var(--tag-homework);
   background: var(--tag-homework-soft);
+  border-color: color-mix(in srgb, var(--tag-homework) 45%, transparent);
 }
 
 .item-title {
@@ -368,6 +452,9 @@
 
 .empty-state {
   color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.03em;
   text-align: center;
   padding: var(--sp-7) var(--sp-4);
   border: 1px dashed var(--line-strong);
@@ -454,6 +541,8 @@
   border-radius: 4px;
   color: var(--ink);
   font: 500 var(--fs-sm) / 1.3 var(--font-body);
+  text-transform: none;
+  letter-spacing: normal;
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -500,6 +589,7 @@
 
 .calendar-header h2 {
   font-size: var(--fs-lg);
+  letter-spacing: 0.01em;
 }
 
 .calendar-header-nav {
@@ -548,7 +638,7 @@
 
 .calendar-cell-today {
   border-color: var(--rail);
-  box-shadow: 0 0 0 1px var(--rail);
+  box-shadow: 0 0 0 1px var(--rail), 0 0 14px -4px var(--rail-glow);
 }
 
 .calendar-cell-today .calendar-cell-daynum {
@@ -574,18 +664,21 @@
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border: none;
-  transition: filter 120ms ease;
+  border: 1px solid transparent;
+  transition: box-shadow 120ms ease, border-color 120ms ease;
 }
 
 .calendar-chip:hover {
-  filter: brightness(0.94);
+  border-color: currentColor;
+  box-shadow: 0 0 8px -2px currentColor;
 }
 
 .calendar-chip-assignment {
@@ -678,6 +771,7 @@
 
 .time-grid-day-label.today .time-grid-day-num {
   color: var(--rail);
+  text-shadow: 0 0 10px var(--rail-glow);
 }
 
 .time-grid-allday {
@@ -722,6 +816,7 @@
 
 .time-grid-day-column.today {
   background: var(--rail-soft);
+  box-shadow: inset 0 0 20px -8px var(--rail-glow);
 }
 
 .time-grid-hour-row {
@@ -733,22 +828,26 @@
 .time-block {
   position: absolute;
   overflow: hidden;
-  border: none;
+  border: 1px solid var(--line);
   border-left: 3px solid var(--rail);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--rail-soft);
   color: var(--ink);
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: normal;
   text-align: left;
   padding: 3px 6px;
   display: flex;
   flex-direction: column;
   gap: 1px;
   box-shadow: var(--shadow-sm);
-  transition: filter 120ms ease;
+  transition: box-shadow 120ms ease, border-color 120ms ease;
 }
 
 .time-block:hover {
-  filter: brightness(0.96);
+  border-color: var(--rail);
+  box-shadow: var(--shadow-sm), 0 0 10px -3px var(--rail-glow);
 }
 
 .time-block-exam {
@@ -798,7 +897,8 @@
 .dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10, 12, 16, 0.55);
+  background: rgba(4, 6, 10, 0.72);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -811,7 +911,7 @@
   width: 100%;
   max-width: 380px;
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
   padding: var(--sp-5);
@@ -867,6 +967,15 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
   }
 }
 

@@ -1,34 +1,39 @@
 :root {
-  /* Color — "schedule board": paper ground, ink text, two functional rails */
-  --ink: #161a23;
-  --ink-soft: #5c6270;
-  --ink-faint: #9aa0ac;
-  --paper: #f3f4f6;
-  --surface: #fdfdfe;
-  --surface-sunken: #eceef1;
-  --line: #e3e5ea;
-  --line-strong: #cbced6;
+  /* Color — "HUD": near-black deep-space ground, arc-reactor cyan rail,
+     amber/alert-red for exam flags, a small signal-color family for tags */
+  --ink: #eef7fb;
+  --ink-soft: #9db3bc;
+  --ink-faint: #6c8189;
 
-  --rail: #2547d6;
-  --rail-hover: #1d39b0;
-  --rail-soft: #e8ecfc;
-  --rail-contrast: #fff;
+  --bg: #0a0e13;
+  --surface: #0e141b;
+  --surface-sunken: #070a0e;
+  --line: rgba(129, 209, 230, 0.16);
+  --line-strong: rgba(129, 209, 230, 0.34);
 
-  --flag: #c14e17;
-  --flag-hover: #a63f10;
-  --flag-soft: #fbe9dd;
+  --rail: #2be3ff;
+  --rail-hover: #7cf0ff;
+  --rail-soft: rgba(43, 227, 255, 0.12);
+  --rail-glow: rgba(43, 227, 255, 0.55);
+  --rail-contrast: #04141a;
 
-  --tag-quiz: #0f7a72;
-  --tag-quiz-soft: #e4f4f2;
-  --tag-paper: #b3355c;
-  --tag-paper-soft: #fbe7ee;
-  --tag-project: #3f7d32;
-  --tag-project-soft: #eaf4e6;
-  --tag-homework: #a6790a;
-  --tag-homework-soft: #f7eed9;
+  --flag: #ff5d3a;
+  --flag-hover: #ff8562;
+  --flag-soft: rgba(255, 93, 58, 0.14);
 
-  --shadow-sm: 0 1px 2px rgba(22, 26, 35, 0.05), 0 1px 1px rgba(22, 26, 35, 0.04);
-  --shadow-md: 0 8px 20px rgba(22, 26, 35, 0.08), 0 2px 6px rgba(22, 26, 35, 0.05);
+  --tag-quiz: #2de8b0;
+  --tag-quiz-soft: rgba(45, 232, 176, 0.14);
+  --tag-paper: #ff4fa3;
+  --tag-paper-soft: rgba(255, 79, 163, 0.14);
+  --tag-project: #7bff5a;
+  --tag-project-soft: rgba(123, 255, 90, 0.14);
+  --tag-homework: #ffc94a;
+  --tag-homework-soft: rgba(255, 201, 74, 0.14);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 14px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(43, 227, 255, 0.06);
+  --glow-sm: 0 0 0 1px rgba(43, 227, 255, 0.3), 0 0 10px rgba(43, 227, 255, 0.28);
+  --glow-md: 0 0 0 1px rgba(43, 227, 255, 0.4), 0 0 22px rgba(43, 227, 255, 0.35);
 
   /* Type */
   --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
@@ -52,48 +57,14 @@
   --sp-7: 48px;
   --sp-8: 64px;
 
-  --radius: 10px;
-  --radius-sm: 6px;
+  --radius: 4px;
+  --radius-sm: 2px;
 
   font: var(--fs-base) / 1.55 var(--font-body);
-  color-scheme: light dark;
+  color-scheme: dark;
   color: var(--ink);
-  background: var(--paper);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ink: #e8e9ee;
-    --ink-soft: #a1a6b3;
-    --ink-faint: #676c78;
-    --paper: #14161c;
-    --surface: #1a1d25;
-    --surface-sunken: #101216;
-    --line: #2a2d37;
-    --line-strong: #383c48;
-
-    --rail: #7c93ff;
-    --rail-hover: #97a9ff;
-    --rail-soft: #1f2647;
-    --rail-contrast: #121420;
-
-    --flag: #ff9a5c;
-    --flag-hover: #ffb07e;
-    --flag-soft: #3a2417;
-
-    --tag-quiz: #4fd0c4;
-    --tag-quiz-soft: #163330;
-    --tag-paper: #ff85ab;
-    --tag-paper-soft: #3a1a29;
-    --tag-project: #8fd66b;
-    --tag-project-soft: #203a1a;
-    --tag-homework: #e0b23e;
-    --tag-homework-soft: #3a2c10;
-
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
-    --shadow-md: 0 8px 22px rgba(0, 0, 0, 0.4);
-  }
 }
 
 * {
@@ -102,6 +73,13 @@
 
 body {
   margin: 0;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(rgba(43, 227, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43, 227, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(ellipse 900px 560px at 8% -8%, rgba(43, 227, 255, 0.09), transparent 60%);
+  background-size: 28px 28px, 28px 28px, 100% 100%;
+  background-attachment: fixed;
 }
 
 h1, h2 {
@@ -113,51 +91,62 @@ h1, h2 {
 }
 
 button {
-  font: 500 var(--fs-sm) / 1 var(--font-body);
+  font: 600 var(--fs-sm) / 1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   cursor: pointer;
   border: 1px solid var(--rail);
-  background: var(--rail);
-  color: var(--rail-contrast);
+  background: var(--rail-soft);
+  color: var(--rail);
   border-radius: var(--radius-sm);
   padding: var(--sp-2) var(--sp-4);
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 80ms ease;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease,
+    box-shadow 150ms ease, transform 80ms ease;
 }
 
 button:hover {
-  background: var(--rail-hover);
+  background: rgba(43, 227, 255, 0.2);
   border-color: var(--rail-hover);
+  color: var(--rail-hover);
+  box-shadow: var(--glow-sm);
 }
 
 button:active {
   transform: translateY(1px);
+  box-shadow: none;
 }
 
 button.secondary {
   background: transparent;
-  color: var(--ink);
+  color: var(--ink-soft);
   border-color: var(--line-strong);
 }
 
 button.secondary:hover {
   background: var(--surface-sunken);
-  border-color: var(--line-strong);
+  border-color: var(--ink-faint);
+  color: var(--ink);
+  box-shadow: none;
 }
 
 button.active {
-  background: var(--rail);
-  color: var(--rail-contrast);
+  background: rgba(43, 227, 255, 0.18);
+  color: var(--rail-hover);
   border-color: var(--rail);
+  box-shadow: var(--glow-sm);
 }
 
 button.danger-solid {
-  background: var(--flag);
-  color: var(--rail-contrast);
+  background: var(--flag-soft);
+  color: var(--flag);
   border-color: var(--flag);
 }
 
 button.danger-solid:hover {
-  background: var(--flag-hover);
+  background: rgba(255, 93, 58, 0.22);
   border-color: var(--flag-hover);
+  color: var(--flag-hover);
+  box-shadow: 0 0 0 1px rgba(255, 93, 58, 0.35), 0 0 10px rgba(255, 93, 58, 0.35);
 }
 
 button.ghost {
@@ -165,18 +154,20 @@ button.ghost {
   color: var(--ink-soft);
   border-color: transparent;
   padding: var(--sp-1) var(--sp-2);
-  font-weight: 500;
-  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-size: var(--fs-xs);
 }
 
 button.ghost:hover {
   background: var(--surface-sunken);
-  border-color: var(--surface-sunken);
-  color: var(--ink);
+  border-color: var(--line);
+  color: var(--rail);
+  box-shadow: none;
 }
 
 button.ghost.danger:hover {
   background: var(--flag-soft);
+  border-color: var(--flag-soft);
   color: var(--flag);
 }
 
@@ -184,18 +175,26 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--rail);
+  outline: 1px solid var(--rail);
   outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(43, 227, 255, 0.18);
 }
 
 input, select, textarea {
-  font: inherit;
+  /* Deliberately not `font: inherit` — labels are mono/uppercase for the
+     HUD readout look, but typed content stays in the readable body face. */
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  font-weight: 400;
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: normal;
   padding: var(--sp-2) var(--sp-3);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: var(--surface-sunken);
   color: var(--ink);
-  transition: border-color 120ms ease;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 textarea {
@@ -212,10 +211,37 @@ label {
   display: flex;
   flex-direction: column;
   gap: var(--sp-1);
-  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
   font-weight: 500;
-  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
   flex: 1;
+}
+
+::selection {
+  background: rgba(43, 227, 255, 0.28);
+  color: var(--ink);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-sunken);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 6px;
+  border: 2px solid var(--surface-sunken);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rail);
 }
 
 @media (prefers-reduced-motion: reduce) {

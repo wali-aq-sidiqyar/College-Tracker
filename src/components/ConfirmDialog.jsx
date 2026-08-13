@@ -44,7 +44,7 @@ export default function ConfirmDialog({
       }}
     >
       <div
-        className="dialog-card"
+        className="dialog-card hud-frame"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby={titleId}

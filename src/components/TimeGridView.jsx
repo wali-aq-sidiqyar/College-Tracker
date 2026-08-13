@@ -27,7 +27,10 @@ export default function TimeGridView({ items, anchorDate, days, onEdit, onReques
   }, [])
 
   return (
-    <div className="time-grid" style={{ '--hour-height': `${HOUR_HEIGHT}px`, '--day-columns': days }}>
+    <div
+      className="time-grid hud-frame"
+      style={{ '--hour-height': `${HOUR_HEIGHT}px`, '--day-columns': days }}
+    >
       <div className="time-grid-header">
         <div className="time-grid-gutter-spacer" />
         {dayDates.map((date) => {

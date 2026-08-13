@@ -43,8 +43,8 @@ export default function Sidebar({ activeTab, onSelect }) {
 function BrandMark() {
   return (
     <svg className="sidebar-mark" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
-      <rect x="1" y="1" width="14" height="14" rx="4" style={{ fill: 'var(--rail)' }} />
-      <rect x="7" y="7" width="14" height="14" rx="4" style={{ fill: 'var(--flag)' }} />
+      <rect x="1" y="1" width="14" height="14" rx="4" fill="none" strokeWidth="1.6" style={{ stroke: 'var(--rail)' }} />
+      <rect x="7" y="7" width="14" height="14" rx="4" fill="none" strokeWidth="1.6" style={{ stroke: 'var(--flag)' }} />
     </svg>
   )
 }

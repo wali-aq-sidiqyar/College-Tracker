@@ -54,7 +54,7 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
   }
 
   return (
-    <form className="item-form" onSubmit={handleSubmit}>
+    <form className="item-form hud-frame" onSubmit={handleSubmit}>
       <h2>{editingItem ? 'Edit item' : 'Add item'}</h2>
 
       <div className="item-form-row">
