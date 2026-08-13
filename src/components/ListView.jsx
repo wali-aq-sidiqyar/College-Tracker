@@ -12,14 +12,14 @@ export default function ListView({ items, onEdit, onDelete }) {
       {sorted.map((item) => (
         <li key={item.id} className={`item-row item-row-${item.type}`}>
           <div className="item-row-main">
-            <span className="item-badge">{item.type}</span>
+            <span className={`item-badge item-badge-${item.type}`}>{item.type}</span>
             <span className="item-title">{item.title}</span>
             {item.className && <span className="item-class">{item.className}</span>}
           </div>
           <div className="item-row-actions">
             <span className="item-date">{formatDateDisplay(item.date)}</span>
-            <button onClick={() => onEdit(item.id)}>Edit</button>
-            <button className="secondary" onClick={() => onDelete(item.id)}>
+            <button className="ghost" onClick={() => onEdit(item.id)}>Edit</button>
+            <button className="ghost danger" onClick={() => onDelete(item.id)}>
               Delete
             </button>
           </div>

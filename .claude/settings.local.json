@@ -14,7 +14,12 @@
       "Bash(npx --yes playwright --version)",
       "Bash(node test.js)",
       "Bash(lsof -ti:5173 -sTCP:LISTEN)",
-      "Bash(xargs -r kill)"
+      "Bash(xargs -r kill)",
+      "Bash(mkdir -p /Users/w/Projects/college-tracker/.claude/skills/frontend-design)",
+      "Bash(node restyle-check.js)"
+    ],
+    "additionalDirectories": [
+      "/Users/w/Projects/college-tracker/.claude/skills"
     ]
   }
 }
