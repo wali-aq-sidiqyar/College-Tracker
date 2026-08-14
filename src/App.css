@@ -173,6 +173,15 @@
   font-size: var(--fs-xs);
 }
 
+.google-refresh-btn {
+  padding: 2px;
+  display: inline-flex;
+}
+
+.google-refresh-btn svg.spin {
+  animation: spin 900ms linear infinite;
+}
+
 .google-status-error {
   font-family: var(--font-body);
   font-size: var(--fs-xs);
@@ -299,23 +308,26 @@
   font-size: var(--fs-sm);
 }
 
-.checkbox-row {
-  flex-direction: row;
-  align-items: center;
-  gap: var(--sp-2);
-  text-transform: none;
-  letter-spacing: normal;
-  font-family: var(--font-body);
-  font-size: var(--fs-sm);
-  color: var(--ink-soft);
+.google-write-hint {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.03em;
+  color: var(--ink-faint);
 }
 
-.checkbox-row input[type='checkbox'] {
-  width: auto;
-  padding: 0;
-  border: none;
-  background: none;
-  accent-color: var(--rail);
+.google-write-hint-connected {
+  color: var(--rail);
+}
+
+.form-error {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--flag-soft);
+  border: 1px solid var(--flag);
+  border-radius: var(--radius-sm);
+  color: var(--flag);
+  font-size: var(--fs-sm);
 }
 
 .item-form h2 {
@@ -1011,6 +1023,16 @@
   line-height: 1.5;
 }
 
+.dialog-error {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--flag-soft);
+  border: 1px solid var(--flag);
+  border-radius: var(--radius-sm);
+  color: var(--flag);
+  font-size: var(--fs-sm);
+}
+
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
@@ -1055,6 +1077,15 @@
   }
   50% {
     opacity: 0.35;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 

@@ -14,15 +14,17 @@ const emptyForm = {
   description: '',
   estimateAmount: '',
   estimateUnit: 'min',
-  pushToGoogle: false,
 }
 
 export default function ItemForm({ editingItem, googleConnected, onSave, onCancel }) {
   const [form, setForm] = useState(emptyForm)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState(null)
   const isGoogleItem = editingItem?.source === 'google'
 
   useEffect(() => {
     setForm(editingItem ? { ...emptyForm, ...editingItem } : emptyForm)
+    setSaveError(null)
   }, [editingItem])
 
   function handleChange(field, value) {
@@ -40,7 +42,7 @@ export default function ItemForm({ editingItem, googleConnected, onSave, onCance
     }))
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     if (!form.title.trim() || !form.date) return
     if (form.kind === 'event' && (!form.startTime || !form.endTime)) return
@@ -51,8 +53,20 @@ export default function ItemForm({ editingItem, googleConnected, onSave, onCance
     const payload = form.kind === 'event'
       ? { ...form, type, estimateAmount: '', estimateUnit: 'min' }
       : { ...form, type }
-    onSave(payload)
-    setForm(emptyForm)
+
+    setSaving(true)
+    setSaveError(null)
+    try {
+      await onSave(payload)
+      // Only clear the form once the save is actually confirmed — on
+      // failure the form (and whatever you typed) stays put so nothing
+      // is lost, and you can just retry.
+      setForm(emptyForm)
+    } catch (err) {
+      setSaveError(err.message || 'Could not save this item. Nothing was lost — try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -80,17 +94,12 @@ export default function ItemForm({ editingItem, googleConnected, onSave, onCance
         </div>
       </div>
 
-      {!editingItem && form.kind === 'event' && googleConnected && (
-        <div className="item-form-row">
-          <label className="checkbox-row">
-            <input
-              type="checkbox"
-              checked={form.pushToGoogle}
-              onChange={(e) => handleChange('pushToGoogle', e.target.checked)}
-            />
-            Save to Google Calendar instead of locally
-          </label>
-        </div>
+      {!editingItem && (
+        <p className={`google-write-hint${googleConnected ? ' google-write-hint-connected' : ''}`}>
+          {googleConnected
+            ? 'This will be saved to Google Calendar.'
+            : 'Google Calendar isn’t connected — this will be saved locally.'}
+        </p>
       )}
 
       <div className="item-form-row">
@@ -206,10 +215,14 @@ export default function ItemForm({ editingItem, googleConnected, onSave, onCance
         </div>
       )}
 
+      {saveError && <p className="form-error">{saveError}</p>}
+
       <div className="item-form-actions">
-        <button type="submit">{editingItem ? 'Save changes' : 'Add item'}</button>
+        <button type="submit" disabled={saving}>
+          {saving ? 'Saving…' : editingItem ? 'Save changes' : 'Add item'}
+        </button>
         {editingItem && (
-          <button type="button" className="secondary" onClick={onCancel}>
+          <button type="button" className="secondary" onClick={onCancel} disabled={saving}>
             Cancel
           </button>
         )}

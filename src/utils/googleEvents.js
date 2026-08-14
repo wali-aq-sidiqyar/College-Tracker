@@ -13,7 +13,11 @@ export function googleEventToItem(event) {
     googleId: event.id,
     source: 'google',
     kind: allDay ? 'task' : 'event',
-    type: props.appType || 'Google',
+    // Events created directly in Google (not through this app) have no
+    // stored appType — 'N/A' matches the app's existing "no category set"
+    // convention (same value ItemForm falls back to for a blank Type
+    // field) rather than inventing a fake category out of the source.
+    type: props.appType || 'N/A',
     title: event.summary || '(Untitled event)',
     className: props.appClassName || '',
     date: allDay ? event.start.date : toISODate(new Date(event.start.dateTime)),

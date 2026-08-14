@@ -7,8 +7,30 @@ import ConfirmDialog from './ConfirmDialog'
 
 export default function ListView({ items, onEdit, onDelete }) {
   const [pendingDeleteId, setPendingDeleteId] = useState(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState(null)
   const sorted = sortByDate(items)
   const pendingItem = sorted.find((item) => item.id === pendingDeleteId)
+
+  function cancelDelete() {
+    setPendingDeleteId(null)
+    setDeleteError(null)
+  }
+
+  async function confirmDelete() {
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      await onDelete(pendingDeleteId)
+      // Only dismiss the dialog once the delete is actually confirmed —
+      // on failure it stays open with the error, and the item stays put.
+      setPendingDeleteId(null)
+    } catch (err) {
+      setDeleteError(err.message || 'Could not delete this item. Nothing was lost — try again.')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   if (sorted.length === 0) {
     return <p className="empty-state">Nothing here yet. Add an item above.</p>
@@ -47,7 +69,13 @@ export default function ListView({ items, onEdit, onDelete }) {
                 </span>
               </span>
               <button className="ghost" onClick={() => onEdit(item.id)}>Edit</button>
-              <button className="ghost danger" onClick={() => setPendingDeleteId(item.id)}>
+              <button
+                className="ghost danger"
+                onClick={() => {
+                  setPendingDeleteId(item.id)
+                  setDeleteError(null)
+                }}
+              >
                 Delete
               </button>
             </div>
@@ -59,11 +87,10 @@ export default function ListView({ items, onEdit, onDelete }) {
         open={pendingItem != null}
         title={`Delete “${pendingItem?.title}”?`}
         description="This can't be undone."
-        onConfirm={() => {
-          onDelete(pendingDeleteId)
-          setPendingDeleteId(null)
-        }}
-        onCancel={() => setPendingDeleteId(null)}
+        pending={deleting}
+        error={deleteError}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
       />
     </ul>
   )

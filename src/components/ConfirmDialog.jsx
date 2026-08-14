@@ -7,6 +7,8 @@ export default function ConfirmDialog({
   description,
   confirmLabel = 'Delete',
   cancelLabel = 'Cancel',
+  pending = false,
+  error = null,
   onConfirm,
   onCancel,
 }) {
@@ -22,7 +24,7 @@ export default function ConfirmDialog({
     cancelRef.current?.focus()
 
     function handleKeyDown(e) {
-      if (e.key === 'Escape') onCancel()
+      if (e.key === 'Escape' && !pending) onCancel()
     }
     document.addEventListener('keydown', handleKeyDown)
 
@@ -32,7 +34,7 @@ export default function ConfirmDialog({
         previouslyFocused.current.focus()
       }
     }
-  }, [open, onCancel])
+  }, [open, onCancel, pending])
 
   if (!open) return null
 
@@ -40,7 +42,7 @@ export default function ConfirmDialog({
     <div
       className="dialog-overlay"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onCancel()
+        if (e.target === e.currentTarget && !pending) onCancel()
       }}
     >
       <div
@@ -56,12 +58,14 @@ export default function ConfirmDialog({
             {description}
           </p>
         )}
+        {error && <p className="dialog-error">{error}</p>}
+
         <div className="dialog-actions">
-          <button type="button" className="secondary" ref={cancelRef} onClick={onCancel}>
+          <button type="button" className="secondary" ref={cancelRef} onClick={onCancel} disabled={pending}>
             {cancelLabel}
           </button>
-          <button type="button" className="danger-solid" onClick={onConfirm}>
-            {confirmLabel}
+          <button type="button" className="danger-solid" onClick={onConfirm} disabled={pending}>
+            {pending ? 'Deleting…' : confirmLabel}
           </button>
         </div>
       </div>

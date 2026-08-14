@@ -59,9 +59,9 @@ export default function App() {
     }
   }
 
-  async function handleSave(form) {
-    const { pushToGoogle, ...itemData } = form
-
+  // Errors intentionally propagate out of here — ItemForm awaits this and
+  // shows them, rather than the item silently disappearing.
+  async function handleSave(itemData) {
     if (editingId) {
       const original = allItems.find((item) => item.id === editingId)
       if (original?.source === 'google') {
@@ -70,13 +70,15 @@ export default function App() {
         setItems((prev) => prev.map((item) => (item.id === editingId ? { ...itemData, id: editingId } : item)))
       }
       returnFromEdit()
-    } else if (pushToGoogle) {
+    } else if (google.connected) {
       await google.createEvent(itemData)
     } else {
       setItems((prev) => [...prev, { ...itemData, id: crypto.randomUUID() }])
     }
   }
 
+  // Also lets errors propagate — the delete-confirm dialog awaits this and
+  // keeps the item (and itself open) until the delete actually succeeds.
   async function handleDelete(id) {
     const target = allItems.find((item) => item.id === id)
     if (target?.source === 'google') {

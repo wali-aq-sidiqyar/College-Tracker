@@ -14,7 +14,32 @@ export default function CalendarView({ items, onEdit, onDelete }) {
   const [granularity, setGranularity] = useState('month')
   const [anchorDate, setAnchorDate] = useState(() => new Date())
   const [pendingDeleteId, setPendingDeleteId] = useState(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState(null)
   const pendingItem = items.find((item) => item.id === pendingDeleteId)
+
+  function requestDelete(id) {
+    setPendingDeleteId(id)
+    setDeleteError(null)
+  }
+
+  function cancelDelete() {
+    setPendingDeleteId(null)
+    setDeleteError(null)
+  }
+
+  async function confirmDelete() {
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      await onDelete(pendingDeleteId)
+      setPendingDeleteId(null)
+    } catch (err) {
+      setDeleteError(err.message || 'Could not delete this item. Nothing was lost — try again.')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   function goToday() {
     setAnchorDate(new Date())
@@ -58,7 +83,7 @@ export default function CalendarView({ items, onEdit, onDelete }) {
           items={items}
           anchorDate={anchorDate}
           onEdit={onEdit}
-          onRequestDelete={setPendingDeleteId}
+          onRequestDelete={requestDelete}
         />
       ) : (
         <TimeGridView
@@ -66,7 +91,7 @@ export default function CalendarView({ items, onEdit, onDelete }) {
           anchorDate={anchorDate}
           days={granularity === 'week' ? 7 : 1}
           onEdit={onEdit}
-          onRequestDelete={setPendingDeleteId}
+          onRequestDelete={requestDelete}
         />
       )}
 
@@ -74,11 +99,10 @@ export default function CalendarView({ items, onEdit, onDelete }) {
         open={pendingItem != null}
         title={`Delete “${pendingItem?.title}”?`}
         description="This can't be undone."
-        onConfirm={() => {
-          onDelete(pendingDeleteId)
-          setPendingDeleteId(null)
-        }}
-        onCancel={() => setPendingDeleteId(null)}
+        pending={deleting}
+        error={deleteError}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
       />
     </div>
   )

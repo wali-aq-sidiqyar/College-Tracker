@@ -7,8 +7,10 @@ export function useGoogleCalendar() {
   const [connected, setConnected] = useState(null) // null = still checking
   const [events, setEvents] = useState([])
   const [error, setError] = useState(null)
+  const [refreshing, setRefreshing] = useState(false)
 
   const refresh = useCallback(async () => {
+    setRefreshing(true)
     try {
       const res = await fetch('/api/events')
       if (res.status === 401) {
@@ -23,6 +25,8 @@ export function useGoogleCalendar() {
       setError(null)
     } catch (err) {
       setError(err.message)
+    } finally {
+      setRefreshing(false)
     }
   }, [])
 
@@ -36,6 +40,21 @@ export function useGoogleCalendar() {
       .catch(() => setConnected(false))
   }, [refresh])
 
+  // Re-pull from Google whenever you come back to this tab — so an event
+  // added on your phone shows up without a full page reload.
+  useEffect(() => {
+    if (!connected) return
+    function onFocus() {
+      if (document.visibilityState !== 'hidden') refresh()
+    }
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onFocus)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onFocus)
+    }
+  }, [connected, refresh])
+
   function connect() {
     window.location.href = '/auth/google'
   }
@@ -44,6 +63,7 @@ export function useGoogleCalendar() {
     await fetch('/auth/disconnect', { method: 'POST' })
     setConnected(false)
     setEvents([])
+    setError(null)
   }
 
   async function createEvent(item) {
@@ -72,5 +92,16 @@ export function useGoogleCalendar() {
     await refresh()
   }
 
-  return { connected, events, error, connect, disconnect, refresh, createEvent, updateEvent, deleteEvent }
+  return {
+    connected,
+    events,
+    error,
+    refreshing,
+    connect,
+    disconnect,
+    refresh,
+    createEvent,
+    updateEvent,
+    deleteEvent,
+  }
 }
