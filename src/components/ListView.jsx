@@ -1,37 +1,14 @@
-import { useState } from 'react'
-import { formatDateDisplay, relativeDayLabel, sortByDate } from '../utils/date'
-import { formatEstimate } from '../utils/estimate'
+import { formatDateDisplay, sortByDate } from '../utils/date'
 import { formatTimeRange } from '../utils/eventTime'
-import { typeSlug } from '../utils/itemTypes'
+import { useBulkSelectDelete } from '../hooks/useBulkSelectDelete'
+import ItemRow from './ItemRow'
 import ConfirmDialog from './ConfirmDialog'
 
 export default function ListView({ items, kind, onEdit, onDelete, onAddRequest }) {
-  const [pendingDeleteId, setPendingDeleteId] = useState(null)
-  const [deleting, setDeleting] = useState(false)
-  const [deleteError, setDeleteError] = useState(null)
   const sorted = sortByDate(items)
-  const pendingItem = sorted.find((item) => item.id === pendingDeleteId)
   const kindLabel = kind === 'task' ? 'task' : 'event'
-
-  function cancelDelete() {
-    setPendingDeleteId(null)
-    setDeleteError(null)
-  }
-
-  async function confirmDelete() {
-    setDeleting(true)
-    setDeleteError(null)
-    try {
-      await onDelete(pendingDeleteId)
-      // Only dismiss the dialog once the delete is actually confirmed —
-      // on failure it stays open with the error, and the item stays put.
-      setPendingDeleteId(null)
-    } catch (err) {
-      setDeleteError(err.message || 'Could not delete this item. Nothing was lost — try again.')
-    } finally {
-      setDeleting(false)
-    }
-  }
+  const bulk = useBulkSelectDelete(sorted, onDelete)
+  const pendingItem = sorted.find((item) => item.id === bulk.pendingDeleteId)
 
   return (
     <div className="list-view">
@@ -44,63 +21,113 @@ export default function ListView({ items, kind, onEdit, onDelete, onAddRequest }
       {sorted.length === 0 ? (
         <p className="empty-state">No {kindLabel}s yet. Add one above.</p>
       ) : (
-        <ul className="item-list">
-          {sorted.map((item, index) => {
-            const relative = relativeDayLabel(item.date)
-            const isOverdue = relative.endsWith('ago')
-            const estimateLabel = item.kind === 'task' ? formatEstimate(item.estimateAmount, item.estimateUnit) : ''
-            const slug = typeSlug(item.type)
-            return (
-              <li
+        <>
+          <div className="list-bulk-bar">
+            <label className="list-bulk-select-all">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={bulk.allSelected}
+                onChange={bulk.toggleSelectAll}
+                disabled={bulk.deleting || bulk.bulkPending}
+              />
+              Select all
+            </label>
+            <span className="list-bulk-count">{bulk.selectedCount} selected</span>
+            <button
+              type="button"
+              className="danger-solid"
+              disabled={bulk.selectedCount === 0 || bulk.deleting || bulk.bulkPending}
+              onClick={bulk.openBulkDelete}
+            >
+              Delete selected
+            </button>
+          </div>
+
+          <ul className="item-list">
+            {sorted.map((item, index) => (
+              <ItemRow
                 key={item.id}
-                className={`item-row item-row-${slug}`}
-                style={{ '--row-index': index }}
-              >
-                <div className="item-row-content">
-                  <div className="item-row-main">
-                    <span className={`item-badge item-badge-${slug}`}>{item.type}</span>
-                    <span className="item-title">{item.title}</span>
-                    {item.className && <span className="item-class">{item.className}</span>}
-                    {estimateLabel && <span className="item-estimate">{estimateLabel}</span>}
-                  </div>
-                  {item.description && <p className="item-description">{item.description}</p>}
-                </div>
-                <div className="item-row-actions">
-                  <span className="item-date-block">
-                    <span className="item-date">{formatDateDisplay(item.date)}</span>
-                    {item.kind === 'event' && (
-                      <span className="item-time">{formatTimeRange(item.startTime, item.endTime)}</span>
-                    )}
-                    <span className={`item-relative${isOverdue ? ' item-relative-overdue' : ''}`}>
-                      {relative}
-                    </span>
-                  </span>
-                  <button className="ghost" onClick={() => onEdit(item.id)}>Edit</button>
-                  <button
-                    className="ghost danger"
-                    onClick={() => {
-                      setPendingDeleteId(item.id)
-                      setDeleteError(null)
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
+                item={item}
+                index={index}
+                selected={bulk.selectedIds.has(item.id)}
+                onToggleSelect={bulk.toggleSelect}
+                onEdit={onEdit}
+                onRequestDelete={bulk.requestDelete}
+                disabled={bulk.bulkPending}
+              />
+            ))}
+          </ul>
+        </>
       )}
 
       <ConfirmDialog
         open={pendingItem != null}
         title={`Delete “${pendingItem?.title}”?`}
         description="This can't be undone."
-        pending={deleting}
-        error={deleteError}
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
+        pending={bulk.deleting}
+        error={bulk.deleteError}
+        onConfirm={bulk.confirmDelete}
+        onCancel={bulk.cancelDelete}
       />
+
+      {bulk.bulkSnapshot && (
+        <ConfirmDialog
+          open={bulk.bulkOpen}
+          wide
+          title={
+            bulk.bulkResult
+              ? 'Bulk delete stopped'
+              : `Delete ${bulk.bulkSnapshot.items.length} ${kindLabel}${bulk.bulkSnapshot.items.length === 1 ? '' : 's'}?`
+          }
+          description={
+            bulk.bulkResult
+              ? null
+              : bulk.bulkSnapshot.googleCount === 0
+                ? "This can't be undone."
+                : bulk.bulkSnapshot.localCount === 0
+                  ? `This can't be undone. All ${bulk.bulkSnapshot.googleCount} will also be removed from Google Calendar.`
+                  : `This can't be undone. ${bulk.bulkSnapshot.googleCount} of these ${bulk.bulkSnapshot.items.length} will also be removed from Google Calendar — the rest are local-only.`
+          }
+          confirmLabel="Delete"
+          cancelLabel={bulk.bulkResult ? 'Close' : 'Cancel'}
+          pending={bulk.bulkPending}
+          hideConfirm={Boolean(bulk.bulkResult)}
+          onConfirm={bulk.confirmBulkDelete}
+          onCancel={bulk.closeBulkDialog}
+        >
+          {bulk.bulkResult ? (
+            <div className="dialog-bulk-report">
+              {bulk.bulkResult.succeededTitles.length > 0 && (
+                <p className="dialog-bulk-line">
+                  Deleted ({bulk.bulkResult.succeededTitles.length}): {bulk.bulkResult.succeededTitles.join(', ')}
+                </p>
+              )}
+              <p className="dialog-error">
+                Stopped — couldn&rsquo;t delete &ldquo;{bulk.bulkResult.failedTitle}&rdquo;: {bulk.bulkResult.message}
+              </p>
+              {bulk.bulkResult.notAttemptedTitles.length > 0 && (
+                <p className="dialog-bulk-line">
+                  Not attempted ({bulk.bulkResult.notAttemptedTitles.length}): {bulk.bulkResult.notAttemptedTitles.join(', ')}
+                </p>
+              )}
+            </div>
+          ) : (
+            <ul className="dialog-item-list">
+              {bulk.bulkSnapshot.items.map((item) => (
+                <li key={item.id}>
+                  <span className="dialog-item-title">{item.title}</span>
+                  <span className="dialog-item-meta">
+                    {formatDateDisplay(item.date)}
+                    {item.kind === 'event' && ` · ${formatTimeRange(item.startTime, item.endTime)}`}
+                    {item.source === 'google' && ' · Google'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ConfirmDialog>
+      )}
     </div>
   )
 }

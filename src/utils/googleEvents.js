@@ -12,6 +12,10 @@ export function googleEventToItem(event) {
     id: `google-${event.id}`,
     googleId: event.id,
     source: 'google',
+    // Google expands each recurring series into one instance per
+    // occurrence and stamps every instance with the series' master event
+    // ID here — present for free in the same response we already fetch.
+    recurringEventId: event.recurringEventId || null,
     kind: allDay ? 'task' : 'event',
     // Events created directly in Google (not through this app) have no
     // stored appType — 'N/A' matches the app's existing "no category set"

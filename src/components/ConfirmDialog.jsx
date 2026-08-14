@@ -9,6 +9,9 @@ export default function ConfirmDialog({
   cancelLabel = 'Cancel',
   pending = false,
   error = null,
+  hideConfirm = false,
+  wide = false,
+  children,
   onConfirm,
   onCancel,
 }) {
@@ -46,7 +49,7 @@ export default function ConfirmDialog({
       }}
     >
       <div
-        className="dialog-card hud-frame"
+        className={`dialog-card hud-frame${wide ? ' dialog-card-wide' : ''}`}
         role="alertdialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -58,15 +61,18 @@ export default function ConfirmDialog({
             {description}
           </p>
         )}
+        {children}
         {error && <p className="dialog-error">{error}</p>}
 
         <div className="dialog-actions">
           <button type="button" className="secondary" ref={cancelRef} onClick={onCancel} disabled={pending}>
             {cancelLabel}
           </button>
-          <button type="button" className="danger-solid" onClick={onConfirm} disabled={pending}>
-            {pending ? 'Deleting…' : confirmLabel}
-          </button>
+          {!hideConfirm && (
+            <button type="button" className="danger-solid" onClick={onConfirm} disabled={pending}>
+              {pending ? 'Deleting…' : confirmLabel}
+            </button>
+          )}
         </div>
       </div>
     </div>,

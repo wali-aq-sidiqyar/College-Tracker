@@ -385,7 +385,6 @@
 .item-row {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
   gap: var(--sp-3);
   padding: var(--sp-3) var(--sp-4);
   background: var(--surface);
@@ -396,6 +395,14 @@
   transition: border-color 120ms ease, box-shadow 120ms ease;
   animation: row-in 320ms ease backwards;
   animation-delay: calc(var(--row-index, 0) * 35ms);
+}
+
+.item-row-select {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 18px;
+  padding-top: 2px;
 }
 
 .item-row:hover {
@@ -515,6 +522,48 @@
   display: flex;
   align-items: center;
   gap: var(--sp-1);
+  margin-left: auto;
+}
+
+/* Checkbox reset — native checkboxes otherwise pick up the padded,
+   bordered look meant for text inputs from the global input rule. */
+input[type='checkbox'].checkbox {
+  width: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  accent-color: var(--rail);
+  cursor: pointer;
+}
+
+.list-bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.list-bulk-select-all {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.list-bulk-count {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.03em;
+  color: var(--ink-faint);
+  margin-right: auto;
 }
 
 .item-date-block {
@@ -560,6 +609,46 @@
   padding: var(--sp-7) var(--sp-4);
   border: 1px dashed var(--line-strong);
   border-radius: var(--radius);
+}
+
+/* Events list — one-time vs recurring sections */
+
+.event-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.event-section-heading {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.recurring-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.recurring-group-row .item-row-actions {
+  align-items: center;
+}
+
+.item-recurrence-pattern {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.recurring-occurrences {
+  margin-left: var(--sp-6);
+  padding-left: var(--sp-3);
+  border-left: 1px dashed var(--line-strong);
 }
 
 /* Notes view — folder tree */
@@ -1022,6 +1111,10 @@
   animation: dialog-in 150ms ease;
 }
 
+.dialog-card-wide {
+  max-width: 480px;
+}
+
 .dialog-card h2 {
   font-size: var(--fs-lg);
 }
@@ -1041,6 +1134,61 @@
   border-radius: var(--radius-sm);
   color: var(--flag);
   font-size: var(--fs-sm);
+}
+
+.dialog-item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+
+.dialog-item-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-sm);
+}
+
+.dialog-item-list li:last-child {
+  border-bottom: none;
+}
+
+.dialog-item-title {
+  min-width: 0;
+  flex: 1 1 auto;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dialog-item-meta {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.dialog-bulk-report {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.dialog-bulk-line {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+  line-height: 1.5;
 }
 
 .dialog-actions {

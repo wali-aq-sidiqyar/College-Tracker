@@ -4,6 +4,7 @@ import { useGoogleCalendar } from './hooks/useGoogleCalendar'
 import Sidebar from './components/Sidebar'
 import ItemForm from './components/ItemForm'
 import ListView from './components/ListView'
+import EventsListView from './components/EventsListView'
 import CalendarView from './components/CalendarView'
 import NotesView from './components/NotesView'
 import './App.css'
@@ -142,9 +143,8 @@ export default function App() {
             />
           )}
           {activeTab === 'events' && (
-            <ListView
+            <EventsListView
               items={eventItems}
-              kind="event"
               onAddRequest={handleAddRequest}
               onEdit={handleEditRequest}
               onDelete={handleDelete}
