@@ -10,7 +10,8 @@ import './App.css'
 
 const TAB_TITLES = {
   calendar: 'Calendar',
-  assignments: 'Assignments',
+  tasks: 'Tasks',
+  events: 'Events',
   notes: 'Notes',
   add: 'Add',
 }
@@ -21,6 +22,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('calendar')
   const [editingId, setEditingId] = useState(null)
   const [returnTab, setReturnTab] = useState(null)
+  const [addDefaultKind, setAddDefaultKind] = useState(null)
 
   // Items saved before Event/Task existed have no `kind`. Treat anything
   // with a start time as an Event, everything else as a Task.
@@ -41,6 +43,8 @@ export default function App() {
   }, [])
 
   const allItems = [...items, ...google.events]
+  const taskItems = allItems.filter((item) => item.kind === 'task')
+  const eventItems = allItems.filter((item) => item.kind === 'event')
   const editingItem = allItems.find((item) => item.id === editingId) || null
 
   // Editing lives on the Add tab, so jump there and remember where to
@@ -51,12 +55,33 @@ export default function App() {
     setActiveTab('add')
   }
 
-  function returnFromEdit() {
+  // Same idea for "Add task"/"Add event" from within the Tasks/Events
+  // tabs — jump to the Add tab pre-set to that kind, and remember to
+  // come back to the tab that asked for it.
+  function handleAddRequest(kind) {
+    setReturnTab(activeTab)
+    setAddDefaultKind(kind)
     setEditingId(null)
+    setActiveTab('add')
+  }
+
+  function returnToOrigin() {
+    setEditingId(null)
+    setAddDefaultKind(null)
     if (returnTab) {
       setActiveTab(returnTab)
       setReturnTab(null)
     }
+  }
+
+  // Navigating via the sidebar directly (rather than an edit/add request)
+  // should always land on a clean slate, not leftover edit/add-in-progress
+  // state from wherever you were before.
+  function handleNavSelect(tab) {
+    setEditingId(null)
+    setReturnTab(null)
+    setAddDefaultKind(null)
+    setActiveTab(tab)
   }
 
   // Errors intentionally propagate out of here — ItemForm awaits this and
@@ -69,11 +94,16 @@ export default function App() {
       } else {
         setItems((prev) => prev.map((item) => (item.id === editingId ? { ...itemData, id: editingId } : item)))
       }
-      returnFromEdit()
-    } else if (google.connected) {
-      await google.createEvent(itemData)
+      returnToOrigin()
     } else {
-      setItems((prev) => [...prev, { ...itemData, id: crypto.randomUUID() }])
+      if (google.connected) {
+        await google.createEvent(itemData)
+      } else {
+        setItems((prev) => [...prev, { ...itemData, id: crypto.randomUUID() }])
+      }
+      // Only hop back to Tasks/Events if that's where this add started —
+      // arriving via the plain Add tab keeps you there to add more.
+      if (returnTab) returnToOrigin()
     }
   }
 
@@ -86,12 +116,12 @@ export default function App() {
     } else {
       setItems((prev) => prev.filter((item) => item.id !== id))
     }
-    if (editingId === id) returnFromEdit()
+    if (editingId === id) returnToOrigin()
   }
 
   return (
     <div className="app-shell">
-      <Sidebar activeTab={activeTab} onSelect={setActiveTab} google={google} />
+      <Sidebar activeTab={activeTab} onSelect={handleNavSelect} google={google} />
 
       <div className="app-main">
         <header className="app-header">
@@ -102,16 +132,33 @@ export default function App() {
           {activeTab === 'calendar' && (
             <CalendarView items={allItems} onEdit={handleEditRequest} onDelete={handleDelete} />
           )}
-          {activeTab === 'assignments' && (
-            <ListView items={allItems} onEdit={handleEditRequest} onDelete={handleDelete} />
+          {activeTab === 'tasks' && (
+            <ListView
+              items={taskItems}
+              kind="task"
+              onAddRequest={handleAddRequest}
+              onEdit={handleEditRequest}
+              onDelete={handleDelete}
+            />
+          )}
+          {activeTab === 'events' && (
+            <ListView
+              items={eventItems}
+              kind="event"
+              onAddRequest={handleAddRequest}
+              onEdit={handleEditRequest}
+              onDelete={handleDelete}
+            />
           )}
           {activeTab === 'notes' && <NotesView />}
           {activeTab === 'add' && (
             <ItemForm
               editingItem={editingItem}
+              defaultKind={addDefaultKind}
+              canCancel={Boolean(editingItem || returnTab)}
               googleConnected={google.connected === true}
               onSave={handleSave}
-              onCancel={returnFromEdit}
+              onCancel={returnToOrigin}
             />
           )}
         </main>

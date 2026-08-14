@@ -16,16 +16,16 @@ const emptyForm = {
   estimateUnit: 'min',
 }
 
-export default function ItemForm({ editingItem, googleConnected, onSave, onCancel }) {
+export default function ItemForm({ editingItem, defaultKind, canCancel, googleConnected, onSave, onCancel }) {
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(null)
   const isGoogleItem = editingItem?.source === 'google'
 
   useEffect(() => {
-    setForm(editingItem ? { ...emptyForm, ...editingItem } : emptyForm)
+    setForm(editingItem ? { ...emptyForm, ...editingItem } : { ...emptyForm, kind: defaultKind || emptyForm.kind })
     setSaveError(null)
-  }, [editingItem])
+  }, [editingItem, defaultKind])
 
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -221,7 +221,7 @@ export default function ItemForm({ editingItem, googleConnected, onSave, onCance
         <button type="submit" disabled={saving}>
           {saving ? 'Saving…' : editingItem ? 'Save changes' : 'Add item'}
         </button>
-        {editingItem && (
+        {canCancel && (
           <button type="button" className="secondary" onClick={onCancel} disabled={saving}>
             Cancel
           </button>

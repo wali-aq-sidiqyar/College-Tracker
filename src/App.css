@@ -363,6 +363,16 @@
 
 /* List view — styled as a schedule board */
 
+.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.list-toolbar {
+  display: flex;
+}
+
 .item-list {
   list-style: none;
   margin: 0;

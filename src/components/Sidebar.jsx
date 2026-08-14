@@ -3,7 +3,8 @@ import GoogleCalendarStatus from './GoogleCalendarStatus'
 
 const NAV_ITEMS = [
   { key: 'calendar', label: 'Calendar', icon: CalendarIcon },
-  { key: 'assignments', label: 'Assignments', icon: AssignmentsIcon },
+  { key: 'tasks', label: 'Tasks', icon: TasksIcon },
+  { key: 'events', label: 'Events', icon: EventsIcon },
   { key: 'notes', label: 'Notes', icon: NotesIcon },
   { key: 'add', label: 'Add', icon: PlusIcon },
 ]
@@ -77,7 +78,7 @@ function CalendarIcon() {
   )
 }
 
-function AssignmentsIcon() {
+function TasksIcon() {
   return (
     <svg {...iconProps()}>
       <rect x="3" y="4" width="4" height="4" rx="1" />
@@ -86,6 +87,16 @@ function AssignmentsIcon() {
       <line x1="10" y1="12" x2="21" y2="12" />
       <rect x="3" y="16" width="4" height="4" rx="1" />
       <line x1="10" y1="18" x2="21" y2="18" />
+    </svg>
+  )
+}
+
+function EventsIcon() {
+  return (
+    <svg {...iconProps()}>
+      <circle cx="12" cy="13" r="8" />
+      <path d="M12 9v4l3 2" />
+      <path d="M9 2h6" />
     </svg>
   )
 }
