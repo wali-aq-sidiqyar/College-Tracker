@@ -13,6 +13,9 @@ dist-ssr
 *.local
 .env
 
+# Google OAuth tokens for the local backend — holds a live refresh token
+server/tokens.json
+
 .claude/settings.local.json
 
 # Editor directories and files

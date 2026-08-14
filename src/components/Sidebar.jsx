@@ -1,4 +1,5 @@
 import { todayBoardLabel } from '../utils/date'
+import GoogleCalendarStatus from './GoogleCalendarStatus'
 
 const NAV_ITEMS = [
   { key: 'calendar', label: 'Calendar', icon: CalendarIcon },
@@ -7,7 +8,7 @@ const NAV_ITEMS = [
   { key: 'add', label: 'Add', icon: PlusIcon },
 ]
 
-export default function Sidebar({ activeTab, onSelect }) {
+export default function Sidebar({ activeTab, onSelect, google }) {
   return (
     <nav className="sidebar" aria-label="Sections">
       <div className="sidebar-brand">
@@ -34,6 +35,7 @@ export default function Sidebar({ activeTab, onSelect }) {
       </div>
 
       <div className="sidebar-footer">
+        <GoogleCalendarStatus google={google} />
         <span className="today-chip">{todayBoardLabel()}</span>
       </div>
     </nav>

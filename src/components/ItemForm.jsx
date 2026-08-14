@@ -14,10 +14,12 @@ const emptyForm = {
   description: '',
   estimateAmount: '',
   estimateUnit: 'min',
+  pushToGoogle: false,
 }
 
-export default function ItemForm({ editingItem, onSave, onCancel }) {
+export default function ItemForm({ editingItem, googleConnected, onSave, onCancel }) {
   const [form, setForm] = useState(emptyForm)
+  const isGoogleItem = editingItem?.source === 'google'
 
   useEffect(() => {
     setForm(editingItem ? { ...emptyForm, ...editingItem } : emptyForm)
@@ -57,6 +59,12 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
     <form className="item-form hud-frame" onSubmit={handleSubmit}>
       <h2>{editingItem ? 'Edit item' : 'Add item'}</h2>
 
+      {isGoogleItem && (
+        <p className="google-item-banner">
+          Editing a Google Calendar event — changes save back to Google.
+        </p>
+      )}
+
       <div className="item-form-row">
         <div className="segmented" role="group" aria-label="Kind">
           {ITEM_KINDS.map((option) => (
@@ -71,6 +79,19 @@ export default function ItemForm({ editingItem, onSave, onCancel }) {
           ))}
         </div>
       </div>
+
+      {!editingItem && form.kind === 'event' && googleConnected && (
+        <div className="item-form-row">
+          <label className="checkbox-row">
+            <input
+              type="checkbox"
+              checked={form.pushToGoogle}
+              onChange={(e) => handleChange('pushToGoogle', e.target.checked)}
+            />
+            Save to Google Calendar instead of locally
+          </label>
+        </div>
+      )}
 
       <div className="item-form-row">
         <label>
