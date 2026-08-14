@@ -25,6 +25,14 @@ export function formatTimeCompact(hhmm) {
   return m === 0 ? `${hour12}${period}` : `${hour12}:${String(m).padStart(2, '0')}${period}`
 }
 
+// Cutoff is the event's END time, not start — an event currently in
+// progress shouldn't disappear from an "upcoming" list mid-way through.
+export function hasEventEnded(item, now = new Date()) {
+  const [year, month, day] = item.date.split('-').map(Number)
+  const [hour, minute] = item.endTime.split(':').map(Number)
+  return new Date(year, month - 1, day, hour, minute) < now
+}
+
 export function buildItemSummary(item) {
   const parts = [
     item.className,

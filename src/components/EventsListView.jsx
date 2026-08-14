@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { formatDateDisplay } from '../utils/date'
-import { formatTimeRange } from '../utils/eventTime'
+import { formatTimeRange, hasEventEnded } from '../utils/eventTime'
 import { typeSlug } from '../utils/itemTypes'
 import { groupRecurringEvents } from '../utils/recurringEvents'
 import { useBulkSelectDelete } from '../hooks/useBulkSelectDelete'
@@ -10,7 +10,15 @@ import ConfirmDialog from './ConfirmDialog'
 export default function EventsListView({ items, onEdit, onDelete, onAddRequest }) {
   const [expandedSeries, setExpandedSeries] = useState(() => new Set())
 
-  const { oneTime, recurringGroups } = groupRecurringEvents(items)
+  // Pattern text is derived before filtering, from the full occurrence
+  // history — dropping past events shouldn't make the pattern look less
+  // complete as the semester goes on.
+  const { oneTime: allOneTime, recurringGroups: allRecurringGroups } = groupRecurringEvents(items)
+  const oneTime = allOneTime.filter((item) => !hasEventEnded(item))
+  const recurringGroups = allRecurringGroups
+    .map((group) => ({ ...group, occurrences: group.occurrences.filter((item) => !hasEventEnded(item)) }))
+    .filter((group) => group.occurrences.length > 0)
+
   const expandedOccurrences = recurringGroups
     .filter((group) => expandedSeries.has(group.recurringEventId))
     .flatMap((group) => group.occurrences)

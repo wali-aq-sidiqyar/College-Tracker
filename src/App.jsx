@@ -3,7 +3,7 @@ import { useLocalStorage } from './hooks/useLocalStorage'
 import { useGoogleCalendar } from './hooks/useGoogleCalendar'
 import Sidebar from './components/Sidebar'
 import ItemForm from './components/ItemForm'
-import ListView from './components/ListView'
+import TasksListView from './components/TasksListView'
 import EventsListView from './components/EventsListView'
 import CalendarView from './components/CalendarView'
 import NotesView from './components/NotesView'
@@ -120,6 +120,20 @@ export default function App() {
     if (editingId === id) returnToOrigin()
   }
 
+  // Completion is just "edit this task's completed field" — same
+  // per-instance Google update as any other edit, same propagate-the-error
+  // behavior, so a failed toggle can't silently look like it worked.
+  async function handleToggleComplete(id) {
+    const target = allItems.find((item) => item.id === id)
+    if (!target) return
+    const updated = { ...target, completed: !target.completed }
+    if (target.source === 'google') {
+      await google.updateEvent(target.googleId, updated)
+    } else {
+      setItems((prev) => prev.map((item) => (item.id === id ? updated : item)))
+    }
+  }
+
   return (
     <div className="app-shell">
       <Sidebar activeTab={activeTab} onSelect={handleNavSelect} google={google} />
@@ -134,12 +148,12 @@ export default function App() {
             <CalendarView items={allItems} onEdit={handleEditRequest} onDelete={handleDelete} />
           )}
           {activeTab === 'tasks' && (
-            <ListView
+            <TasksListView
               items={taskItems}
-              kind="task"
               onAddRequest={handleAddRequest}
               onEdit={handleEditRequest}
               onDelete={handleDelete}
+              onToggleComplete={handleToggleComplete}
             />
           )}
           {activeTab === 'events' && (

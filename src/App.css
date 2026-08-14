@@ -371,6 +371,22 @@
 
 .list-toolbar {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+.list-show-completed {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
 .item-list {
@@ -443,6 +459,17 @@
   align-items: center;
   gap: var(--sp-3);
   flex-wrap: wrap;
+}
+
+.item-row-complete {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.item-row-completed .item-title {
+  color: var(--ink-faint);
+  text-decoration: line-through;
 }
 
 .item-badge {
@@ -534,6 +561,12 @@ input[type='checkbox'].checkbox {
   background: none;
   accent-color: var(--rail);
   cursor: pointer;
+}
+
+/* Distinct accent from the selection checkbox — this one means "done",
+   not "included in a bulk action". */
+input[type='checkbox'].checkbox-complete {
+  accent-color: var(--tag-project);
 }
 
 .list-bulk-bar {

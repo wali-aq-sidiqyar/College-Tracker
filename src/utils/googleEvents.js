@@ -24,6 +24,10 @@ export function googleEventToItem(event) {
     type: props.appType || 'N/A',
     title: event.summary || '(Untitled event)',
     className: props.appClassName || '',
+    // Google has no native "done" state, so completion round-trips through
+    // the same extendedProperties bag as type/className — visible to this
+    // app across any device, but not inside Google Calendar's own UI.
+    completed: props.appCompleted === 'true',
     date: allDay ? event.start.date : toISODate(new Date(event.start.dateTime)),
     startTime: allDay ? '' : toHHMM(event.start.dateTime),
     endTime: allDay ? '' : toHHMM(event.end.dateTime),
@@ -38,7 +42,11 @@ export function googleEventToItem(event) {
 // through Google doesn't lose them.
 export function itemToGoogleEvent(item) {
   const extendedProperties = {
-    private: { appType: item.type || '', appClassName: item.className || '' },
+    private: {
+      appType: item.type || '',
+      appClassName: item.className || '',
+      appCompleted: item.completed ? 'true' : '',
+    },
   }
 
   if (item.kind === 'task' || !item.startTime || !item.endTime) {

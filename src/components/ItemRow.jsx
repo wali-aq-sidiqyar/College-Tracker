@@ -5,15 +5,30 @@ import { typeSlug } from '../utils/itemTypes'
 
 // A single dated task/event row — shared by the Tasks list and the Events
 // list (both the one-time section and any expanded recurring occurrences),
-// so selection, editing, and deleting behave identically everywhere.
-export default function ItemRow({ item, index, selected, onToggleSelect, onEdit, onRequestDelete, disabled }) {
+// so selection, editing, and deleting behave identically everywhere. The
+// completion checkbox is optional (only Tasks pass onToggleComplete).
+export default function ItemRow({
+  item,
+  index,
+  selected,
+  onToggleSelect,
+  onEdit,
+  onRequestDelete,
+  disabled,
+  completed,
+  onToggleComplete,
+  completing,
+}) {
   const relative = relativeDayLabel(item.date)
   const isOverdue = relative.endsWith('ago')
   const estimateLabel = item.kind === 'task' ? formatEstimate(item.estimateAmount, item.estimateUnit) : ''
   const slug = typeSlug(item.type)
 
   return (
-    <li className={`item-row item-row-${slug}`} style={{ '--row-index': index }}>
+    <li
+      className={`item-row item-row-${slug}${completed ? ' item-row-completed' : ''}`}
+      style={{ '--row-index': index }}
+    >
       <label className="item-row-select">
         <input
           type="checkbox"
@@ -26,6 +41,18 @@ export default function ItemRow({ item, index, selected, onToggleSelect, onEdit,
       </label>
       <div className="item-row-content">
         <div className="item-row-main">
+          {onToggleComplete && (
+            <label className="item-row-complete">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-complete"
+                checked={Boolean(completed)}
+                onChange={() => onToggleComplete(item.id)}
+                disabled={completing}
+                aria-label={completed ? `Mark ${item.title} as not done` : `Mark ${item.title} as done`}
+              />
+            </label>
+          )}
           <span className={`item-badge item-badge-${slug}`}>{item.type}</span>
           <span className="item-title">{item.title}</span>
           {item.className && <span className="item-class">{item.className}</span>}
