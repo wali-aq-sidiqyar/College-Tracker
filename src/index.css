@@ -1,51 +1,37 @@
+/* ---------------------------------------------------------------------
+   Theme system
+   -----------------------------------------------------------------------
+   Structural tokens (spacing, radius, type scale, motion) live in the
+   bare :root — they don't change with the palette.
+
+   Palette + font tokens live under [data-theme="…"], keyed off a
+   `data-theme` attribute on <html> (set in index.html). This is preset
+   #1, "melancholic-cyberpunk": Night-City-on-a-clear-night — a near-black
+   base so saturated neon (cyan, hot magenta, electric violet) can scream
+   against it with heavy glow/bloom. The melancholy lives in the
+   composition, not the saturation: a hard vignette, lonely negative
+   space, and glow that's concentrated in a few dramatic spots rather
+   than smeared evenly — a wistful city, not a happy one.
+
+   To add a second preset later: add another `[data-theme="name"] { … }`
+   block redefining the same token names, then flip
+   `document.documentElement.dataset.theme` from a toggle (persist the
+   choice in localStorage). Nothing outside this file needs to change,
+   since every component reads colors/fonts through these variables.
+   --------------------------------------------------------------------- */
+
 :root {
-  /* Color — "HUD": near-black deep-space ground, arc-reactor cyan rail,
-     amber/alert-red for exam flags, a small signal-color family for tags */
-  --ink: #eef7fb;
-  --ink-soft: #9db3bc;
-  --ink-faint: #6c8189;
-
-  --bg: #0a0e13;
-  --surface: #0e141b;
-  --surface-sunken: #070a0e;
-  --line: rgba(129, 209, 230, 0.16);
-  --line-strong: rgba(129, 209, 230, 0.34);
-
-  --rail: #2be3ff;
-  --rail-hover: #7cf0ff;
-  --rail-soft: rgba(43, 227, 255, 0.12);
-  --rail-glow: rgba(43, 227, 255, 0.55);
-  --rail-contrast: #04141a;
-
-  --flag: #ff5d3a;
-  --flag-hover: #ff8562;
-  --flag-soft: rgba(255, 93, 58, 0.14);
-
-  --tag-quiz: #2de8b0;
-  --tag-quiz-soft: rgba(45, 232, 176, 0.14);
-  --tag-paper: #ff4fa3;
-  --tag-paper-soft: rgba(255, 79, 163, 0.14);
-  --tag-project: #7bff5a;
-  --tag-project-soft: rgba(123, 255, 90, 0.14);
-  --tag-homework: #ffc94a;
-  --tag-homework-soft: rgba(255, 201, 74, 0.14);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 14px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(43, 227, 255, 0.06);
-  --glow-sm: 0 0 0 1px rgba(43, 227, 255, 0.3), 0 0 10px rgba(43, 227, 255, 0.28);
-  --glow-md: 0 0 0 1px rgba(43, 227, 255, 0.4), 0 0 22px rgba(43, 227, 255, 0.35);
-
-  /* Type */
-  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
-
+  /* Type scale */
   --fs-xs: 0.75rem;
   --fs-sm: 0.8125rem;
   --fs-base: 1rem;
   --fs-lg: 1.125rem;
   --fs-xl: 1.5rem;
-  --fs-2xl: 1.875rem;
+  --fs-2xl: 2.125rem;
+
+  /* Weight extremes — thin body copy, black display type */
+  --weight-thin: 200;
+  --weight-black: 900;
 
   /* Spacing scale (4px base) */
   --sp-1: 4px;
@@ -60,7 +46,73 @@
   --radius: 4px;
   --radius-sm: 2px;
 
-  font: var(--fs-base) / 1.55 var(--font-body);
+  /* Motion — big enough to actually read as movement */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 420ms;
+  --duration-slow: 750ms;
+}
+
+[data-theme='melancholic-cyberpunk'] {
+  /* Color — a near-black violet-blue base built specifically so vivid
+     neon reads as glowing signage against a dark, empty city, not a
+     wash of color. Cyan is the primary rail; hot magenta and electric
+     violet are secondary/tertiary accents used for glow moments, not
+     flooded everywhere. */
+  --ink: #f2fbff;
+  --ink-soft: #9fb8c9;
+  --ink-faint: #5b6e7c;
+
+  --bg: #05040b;
+  --surface: #120c22;
+  --surface-sunken: #030209;
+  --line: rgba(0, 229, 255, 0.16);
+  --line-strong: rgba(0, 229, 255, 0.38);
+
+  --rail: #00e5ff;
+  --rail-hover: #6bf3ff;
+  --rail-soft: rgba(0, 229, 255, 0.14);
+  --rail-glow: rgba(0, 229, 255, 0.65);
+  --rail-contrast: #001318;
+
+  --accent-2: #ff2bd6;
+  --accent-2-hover: #ff6be8;
+  --accent-2-soft: rgba(255, 43, 214, 0.14);
+  --accent-2-glow: rgba(255, 43, 214, 0.6);
+
+  --accent-3: #8b2dff;
+  --accent-3-soft: rgba(139, 45, 255, 0.14);
+  --accent-3-glow: rgba(139, 45, 255, 0.55);
+
+  --flag: #ff3b3b;
+  --flag-hover: #ff6b5c;
+  --flag-soft: rgba(255, 59, 59, 0.16);
+
+  --tag-quiz: #00ffb2;
+  --tag-quiz-soft: rgba(0, 255, 178, 0.16);
+  --tag-paper: #ff4fd0;
+  --tag-paper-soft: rgba(255, 79, 208, 0.16);
+  --tag-project: #39ff6a;
+  --tag-project-soft: rgba(57, 255, 106, 0.16);
+  --tag-homework: #ffb020;
+  --tag-homework-soft: rgba(255, 176, 32, 0.16);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 18px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(0, 229, 255, 0.08);
+  --glow-sm: 0 0 0 1px rgba(0, 229, 255, 0.4), 0 0 14px rgba(0, 229, 255, 0.45);
+  --glow-md: 0 0 0 1px rgba(0, 229, 255, 0.45), 0 0 30px rgba(0, 229, 255, 0.55),
+    0 0 60px rgba(0, 229, 255, 0.25);
+
+  /* Type — Orbitron's blocky geometry at black weight for a HUD/signage
+     scream, Sora at its thinnest for body copy: the more extreme the
+     weight gap, the louder the display type reads next to it. */
+  --font-display: 'Orbitron', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Sora', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+:root {
+  font: var(--weight-thin) var(--fs-base) / 1.6 var(--font-body);
   color-scheme: dark;
   color: var(--ink);
   background: var(--bg);
@@ -75,18 +127,20 @@ body {
   margin: 0;
   background-color: var(--bg);
   background-image:
-    linear-gradient(rgba(43, 227, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(43, 227, 255, 0.035) 1px, transparent 1px),
-    radial-gradient(ellipse 900px 560px at 8% -8%, rgba(43, 227, 255, 0.09), transparent 60%);
-  background-size: 28px 28px, 28px 28px, 100% 100%;
+    linear-gradient(rgba(0, 229, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(ellipse 1000px 620px at 6% -6%, rgba(0, 229, 255, 0.16), transparent 60%),
+    radial-gradient(ellipse 900px 640px at 98% 12%, rgba(255, 43, 214, 0.12), transparent 58%),
+    radial-gradient(ellipse 1100px 800px at 50% 118%, rgba(139, 45, 255, 0.14), transparent 62%);
+  background-size: 28px 28px, 28px 28px, 100% 100%, 100% 100%, 100% 100%;
   background-attachment: fixed;
 }
 
 h1, h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: var(--weight-black);
+  letter-spacing: 0.01em;
   color: var(--ink);
 }
 
@@ -100,12 +154,13 @@ button {
   color: var(--rail);
   border-radius: var(--radius-sm);
   padding: var(--sp-2) var(--sp-4);
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease,
-    box-shadow 150ms ease, transform 80ms ease;
+  transition: background-color var(--duration-fast) ease, border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease, box-shadow var(--duration-fast) var(--ease-out),
+    transform 80ms ease;
 }
 
 button:hover {
-  background: rgba(43, 227, 255, 0.2);
+  background: rgba(0, 229, 255, 0.2);
   border-color: var(--rail-hover);
   color: var(--rail-hover);
   box-shadow: var(--glow-sm);
@@ -130,7 +185,7 @@ button.secondary:hover {
 }
 
 button.active {
-  background: rgba(43, 227, 255, 0.18);
+  background: rgba(0, 229, 255, 0.18);
   color: var(--rail-hover);
   border-color: var(--rail);
   box-shadow: var(--glow-sm);
@@ -143,10 +198,10 @@ button.danger-solid {
 }
 
 button.danger-solid:hover {
-  background: rgba(255, 93, 58, 0.22);
+  background: rgba(255, 59, 59, 0.24);
   border-color: var(--flag-hover);
   color: var(--flag-hover);
-  box-shadow: 0 0 0 1px rgba(255, 93, 58, 0.35), 0 0 10px rgba(255, 93, 58, 0.35);
+  box-shadow: 0 0 0 1px rgba(255, 59, 59, 0.4), 0 0 14px rgba(255, 59, 59, 0.4);
 }
 
 button.ghost {
@@ -177,7 +232,7 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 1px solid var(--rail);
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(43, 227, 255, 0.18);
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.22);
 }
 
 input, select, textarea {
@@ -194,7 +249,7 @@ input, select, textarea {
   border-radius: var(--radius-sm);
   background: var(--surface-sunken);
   color: var(--ink);
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
 }
 
 textarea {
@@ -221,7 +276,7 @@ label {
 }
 
 ::selection {
-  background: rgba(43, 227, 255, 0.28);
+  background: rgba(0, 229, 255, 0.32);
   color: var(--ink);
 }
 
