@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { fetchBlockTree, isConfigured, queryDatabaseAll } from '../notionClient.js'
+import { createPage, fetchBlockTree, getDatabaseSchema, isConfigured, queryDatabaseAll } from '../notionClient.js'
 
 const router = Router()
 
@@ -49,6 +49,52 @@ router.get('/notes', async (req, res) => {
     res.json({ notes })
   } catch (err) {
     console.error('Notion database query failed:', err.message)
+    res.status(502).json({ error: 'notion_api_error' })
+  }
+})
+
+// The inverse of extractPropertyValue — builds a property value in whatever
+// shape the database's actual schema expects, so Class/Semester/Year write
+// correctly regardless of which property type they turn out to be.
+function buildPropertyValue(type, value) {
+  switch (type) {
+    case 'select':
+      return { select: { name: value } }
+    case 'multi_select':
+      return { multi_select: [{ name: value }] }
+    case 'number': {
+      const num = Number(value)
+      return { number: Number.isNaN(num) ? null : num }
+    }
+    case 'rich_text':
+    default:
+      return { rich_text: [{ text: { content: value } }] }
+  }
+}
+
+router.post('/notes', async (req, res) => {
+  const { title, date, className, semester, year } = req.body || {}
+  if (!title?.trim() || !date) {
+    res.status(400).json({ error: 'invalid_request' })
+    return
+  }
+
+  try {
+    const databaseId = process.env.NOTION_DATABASE_ID
+    const schema = await getDatabaseSchema(databaseId)
+
+    const properties = {
+      Title: { title: [{ text: { content: title.trim() } }] },
+      Date: { date: { start: date } },
+    }
+    if (className) properties.Class = buildPropertyValue(schema.properties.Class?.type, className)
+    if (semester) properties.Semester = buildPropertyValue(schema.properties.Semester?.type, semester)
+    if (year) properties.Year = buildPropertyValue(schema.properties.Year?.type, year)
+
+    const page = await createPage(databaseId, properties)
+    res.status(201).json({ id: page.id, url: page.url })
+  } catch (err) {
+    console.error('Notion page create failed:', err.message)
     res.status(502).json({ error: 'notion_api_error' })
   }
 })

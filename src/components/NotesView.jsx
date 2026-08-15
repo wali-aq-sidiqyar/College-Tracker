@@ -5,12 +5,14 @@ import { formatDateDisplay } from '../utils/date'
 import NotesTree from './NotesTree'
 import NotePreview from './NotePreview'
 import NoteContent from './NoteContent'
+import NewNoteDialog from './NewNoteDialog'
 
 export default function NotesView() {
   const { notes, loading, error, configured, refresh } = useNotionNotes()
   const [expandedIds, setExpandedIds] = useState(() => new Set())
   const [drillPath, setDrillPath] = useState([])
   const [modalNote, setModalNote] = useState(null)
+  const [newNoteOpen, setNewNoteOpen] = useState(false)
 
   const tree = useMemo(() => buildNotesTree(notes), [notes])
 
@@ -60,6 +62,26 @@ export default function NotesView() {
   const viewingNote = lastEntry?.type === 'note' ? lastEntry.note : null
   const currentNodes = drillPath.length === 0 ? tree : viewingNote ? null : lastEntry.children
 
+  // "New note" only makes sense once you're inside a specific Class folder
+  // — Semester/Year come from its ancestors in drillPath (drillPath is
+  // exactly [year, semester, class] at this point).
+  const viewingClass = !viewingNote && lastEntry?.type === 'folder' && lastEntry.level === 'class'
+  const newNoteContext = viewingClass
+    ? { className: lastEntry.label, semester: drillPath[1]?.label, year: drillPath[0]?.label }
+    : null
+
+  async function handleCreateNote(title, date) {
+    const res = await fetch('/api/notion/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, date, ...newNoteContext }),
+    })
+    if (!res.ok) throw new Error('Could not create this note in Notion.')
+    const created = await res.json()
+    refresh()
+    return created
+  }
+
   return (
     <div className="notes-view">
       <div className="notes-toolbar">
@@ -103,6 +125,11 @@ export default function NotesView() {
                   </Fragment>
                 ))}
               </nav>
+              {viewingClass && (
+                <button type="button" className="notes-new-note" onClick={() => setNewNoteOpen(true)}>
+                  New note
+                </button>
+              )}
             </div>
           )}
 
@@ -134,6 +161,12 @@ export default function NotesView() {
       )}
 
       <NotePreview note={modalNote} onClose={() => setModalNote(null)} />
+      <NewNoteDialog
+        open={newNoteOpen}
+        context={newNoteContext || {}}
+        onCreate={handleCreateNote}
+        onClose={() => setNewNoteOpen(false)}
+      />
     </div>
   )
 }

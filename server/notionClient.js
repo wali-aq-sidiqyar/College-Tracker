@@ -27,6 +27,17 @@ export async function notionFetch(path, options = {}) {
   return res.json()
 }
 
+export async function getDatabaseSchema(databaseId) {
+  return notionFetch(`/databases/${databaseId}`)
+}
+
+export async function createPage(databaseId, properties) {
+  return notionFetch('/pages', {
+    method: 'POST',
+    body: JSON.stringify({ parent: { database_id: databaseId }, properties }),
+  })
+}
+
 export async function queryDatabaseAll(databaseId) {
   const results = []
   let cursor

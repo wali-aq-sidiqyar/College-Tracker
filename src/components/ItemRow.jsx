@@ -29,7 +29,7 @@ export default function ItemRow({
       className={`item-row item-row-${slug}${completed ? ' item-row-completed' : ''}`}
       style={{ '--row-index': index }}
     >
-      <label className="item-row-select">
+      <label className="item-row-select" title={`Select ${item.title} for bulk actions`}>
         <input
           type="checkbox"
           className="checkbox"
@@ -42,15 +42,21 @@ export default function ItemRow({
       <div className="item-row-content">
         <div className="item-row-main">
           {onToggleComplete && (
-            <label className="item-row-complete">
+            <label
+              className="item-row-complete"
+              title={completed ? `Mark ${item.title} as not done` : `Mark ${item.title} as done`}
+            >
               <input
                 type="checkbox"
-                className="checkbox checkbox-complete"
+                className="sr-only"
                 checked={Boolean(completed)}
                 onChange={() => onToggleComplete(item.id)}
                 disabled={completing}
                 aria-label={completed ? `Mark ${item.title} as not done` : `Mark ${item.title} as done`}
               />
+              <span className="done-toggle" aria-hidden="true">
+                <CheckIcon />
+              </span>
             </label>
           )}
           <span className={`item-badge item-badge-${slug}`}>{item.type}</span>
@@ -76,5 +82,13 @@ export default function ItemRow({
         </button>
       </div>
     </li>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
   )
 }
