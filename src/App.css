@@ -531,6 +531,36 @@
   text-decoration: line-through;
 }
 
+/* Reminders — much simpler than item-row since there's no type/class/date */
+
+.reminder-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--rail);
+  border-radius: var(--radius);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.reminder-row:hover {
+  box-shadow: var(--shadow-sm), -3px 0 12px -6px var(--rail-glow);
+  border-color: var(--line-strong);
+}
+
+.reminder-row-text {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.reminder-row-completed .reminder-row-text {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+
 .item-badge {
   font-family: var(--font-mono);
   font-size: var(--fs-xs);

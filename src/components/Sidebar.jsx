@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { key: 'calendar', label: 'Calendar', icon: CalendarIcon },
   { key: 'tasks', label: 'Tasks', icon: TasksIcon },
   { key: 'events', label: 'Events', icon: EventsIcon },
+  { key: 'reminders', label: 'Reminders', icon: RemindersIcon },
   { key: 'notes', label: 'Notes', icon: NotesIcon },
   { key: 'add', label: 'Add', icon: PlusIcon },
 ]
@@ -108,6 +109,15 @@ function NotesIcon() {
       <path d="M15 2v5h5" />
       <line x1="8" y1="13" x2="16" y2="13" />
       <line x1="8" y1="17" x2="13" y2="17" />
+    </svg>
+  )
+}
+
+function RemindersIcon() {
+  return (
+    <svg {...iconProps()}>
+      <path d="M12 3a5 5 0 0 0-5 5v3.586l-1.707 1.707A1 1 0 0 0 6 15h12a1 1 0 0 0 .707-1.707L17 11.586V8a5 5 0 0 0-5-5z" />
+      <path d="M10 18a2 2 0 0 0 4 0" />
     </svg>
   )
 }

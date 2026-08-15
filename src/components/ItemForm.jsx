@@ -16,7 +16,7 @@ const emptyForm = {
   estimateUnit: 'min',
 }
 
-export default function ItemForm({ editingItem, defaultKind, canCancel, googleConnected, onSave, onCancel }) {
+export default function ItemForm({ editingItem, defaultKind, canCancel, googleConnected, classOptions = [], onSave, onCancel }) {
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(null)
@@ -167,12 +167,29 @@ export default function ItemForm({ editingItem, defaultKind, canCancel, googleCo
 
         <label>
           Class
-          <input
-            type="text"
-            placeholder="e.g. CS 101"
-            value={form.className}
-            onChange={(e) => handleChange('className', e.target.value)}
-          />
+          {classOptions.length > 0 ? (
+            <select value={form.className} onChange={(e) => handleChange('className', e.target.value)}>
+              <option value="">No class</option>
+              {/* If the item's current class fell out of the known list (renamed
+                  or removed in Notion since), keep it selectable rather than
+                  silently blanking it out. */}
+              {(form.className && !classOptions.includes(form.className)
+                ? [form.className, ...classOptions]
+                : classOptions
+              ).map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type="text"
+              placeholder="e.g. CS 101"
+              value={form.className}
+              onChange={(e) => handleChange('className', e.target.value)}
+            />
+          )}
         </label>
       </div>
 

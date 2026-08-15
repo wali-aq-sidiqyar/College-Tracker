@@ -31,5 +31,20 @@ export function useNotionNotes() {
     refresh()
   }, [refresh])
 
+  // Re-pull whenever you come back to this tab — so a class/note added in
+  // Notion directly (not through this app) shows up, including in the
+  // Class dropdown on the Add form, without needing a manual reload.
+  useEffect(() => {
+    function onFocus() {
+      if (document.visibilityState !== 'hidden') refresh()
+    }
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onFocus)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onFocus)
+    }
+  }, [refresh])
+
   return { notes, loading, error, configured, refresh }
 }

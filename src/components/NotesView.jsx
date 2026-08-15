@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { useNotionNotes } from '../hooks/useNotionNotes'
 import { buildNotesTree } from '../utils/notesTree'
 import { formatDateDisplay } from '../utils/date'
 import NotesTree from './NotesTree'
@@ -8,8 +7,8 @@ import NoteContent from './NoteContent'
 import NewNoteDialog from './NewNoteDialog'
 import ClassNotesList from './ClassNotesList'
 
-export default function NotesView() {
-  const { notes, loading, error, configured, refresh } = useNotionNotes()
+export default function NotesView({ notion }) {
+  const { notes, loading, error, configured, refresh } = notion
   const [expandedIds, setExpandedIds] = useState(() => new Set())
   const [drillPath, setDrillPath] = useState([])
   const [modalNote, setModalNote] = useState(null)

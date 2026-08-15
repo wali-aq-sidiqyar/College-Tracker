@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { useGoogleCalendar } from './hooks/useGoogleCalendar'
+import { useNotionNotes } from './hooks/useNotionNotes'
 import Sidebar from './components/Sidebar'
 import ItemForm from './components/ItemForm'
+import ReminderForm from './components/ReminderForm'
 import TasksListView from './components/TasksListView'
 import EventsListView from './components/EventsListView'
+import RemindersListView from './components/RemindersListView'
 import CalendarView from './components/CalendarView'
 import NotesView from './components/NotesView'
 import './App.css'
@@ -13,13 +16,17 @@ const TAB_TITLES = {
   calendar: 'Calendar',
   tasks: 'Tasks',
   events: 'Events',
+  reminders: 'Reminders',
   notes: 'Notes',
   add: 'Add',
+  'add-reminder': 'Add reminder',
 }
 
 export default function App() {
   const [items, setItems] = useLocalStorage('college-tracker-items', [])
+  const [reminders, setReminders] = useLocalStorage('college-tracker-reminders', [])
   const google = useGoogleCalendar()
+  const notion = useNotionNotes()
   const [activeTab, setActiveTab] = useState('calendar')
   const [editingId, setEditingId] = useState(null)
   const [returnTab, setReturnTab] = useState(null)
@@ -48,6 +55,15 @@ export default function App() {
   const eventItems = allItems.filter((item) => item.kind === 'event')
   const editingItem = allItems.find((item) => item.id === editingId) || null
 
+  // The single source of truth for "which classes exist" — drawn from
+  // Notion's Class property, the same field the Notes folders are built
+  // from, so the task/event form can't introduce a spelling Notes doesn't
+  // already know about.
+  const classOptions = useMemo(
+    () => [...new Set(notion.notes.map((note) => note.className).filter(Boolean))].sort(),
+    [notion.notes]
+  )
+
   // Editing lives on the Add tab, so jump there and remember where to
   // come back to once the edit is saved or cancelled.
   function handleEditRequest(id) {
@@ -64,6 +80,14 @@ export default function App() {
     setAddDefaultKind(kind)
     setEditingId(null)
     setActiveTab('add')
+  }
+
+  // Reminders have no sidebar "plain add" entry of their own — every add
+  // flow goes through the "Add reminder" button, so (unlike tasks/events)
+  // it always returns to wherever it was opened from once saved.
+  function handleAddReminderRequest() {
+    setReturnTab(activeTab)
+    setActiveTab('add-reminder')
   }
 
   function returnToOrigin() {
@@ -134,6 +158,22 @@ export default function App() {
     }
   }
 
+  // Reminders are purely local — no Google, no Notion — so these are plain
+  // localStorage updates, kept async/awaitable only for symmetry with the
+  // other forms/dialogs that expect a promise from onSave/onDelete.
+  async function handleSaveReminder(text) {
+    setReminders((prev) => [...prev, { id: crypto.randomUUID(), text, completed: false }])
+    returnToOrigin()
+  }
+
+  async function handleToggleReminderComplete(id) {
+    setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, completed: !r.completed } : r)))
+  }
+
+  async function handleDeleteReminder(id) {
+    setReminders((prev) => prev.filter((r) => r.id !== id))
+  }
+
   return (
     <div className="app-shell">
       <Sidebar activeTab={activeTab} onSelect={handleNavSelect} google={google} />
@@ -164,16 +204,28 @@ export default function App() {
               onDelete={handleDelete}
             />
           )}
-          {activeTab === 'notes' && <NotesView />}
+          {activeTab === 'reminders' && (
+            <RemindersListView
+              items={reminders}
+              onAddRequest={handleAddReminderRequest}
+              onToggleComplete={handleToggleReminderComplete}
+              onDelete={handleDeleteReminder}
+            />
+          )}
+          {activeTab === 'notes' && <NotesView notion={notion} />}
           {activeTab === 'add' && (
             <ItemForm
               editingItem={editingItem}
               defaultKind={addDefaultKind}
               canCancel={Boolean(editingItem || returnTab)}
               googleConnected={google.connected === true}
+              classOptions={classOptions}
               onSave={handleSave}
               onCancel={returnToOrigin}
             />
+          )}
+          {activeTab === 'add-reminder' && (
+            <ReminderForm canCancel={Boolean(returnTab)} onSave={handleSaveReminder} onCancel={returnToOrigin} />
           )}
         </main>
       </div>
