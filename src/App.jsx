@@ -29,6 +29,7 @@ export default function App() {
   const notion = useNotionNotes()
   const [activeTab, setActiveTab] = useState('calendar')
   const [editingId, setEditingId] = useState(null)
+  const [editingReminderId, setEditingReminderId] = useState(null)
   const [returnTab, setReturnTab] = useState(null)
   const [addDefaultKind, setAddDefaultKind] = useState(null)
 
@@ -54,6 +55,7 @@ export default function App() {
   const taskItems = allItems.filter((item) => item.kind === 'task')
   const eventItems = allItems.filter((item) => item.kind === 'event')
   const editingItem = allItems.find((item) => item.id === editingId) || null
+  const editingReminder = reminders.find((r) => r.id === editingReminderId) || null
 
   // The single source of truth for "which classes exist" — drawn from
   // Notion's Class property, the same field the Notes folders are built
@@ -87,11 +89,19 @@ export default function App() {
   // it always returns to wherever it was opened from once saved.
   function handleAddReminderRequest() {
     setReturnTab(activeTab)
+    setEditingReminderId(null)
+    setActiveTab('add-reminder')
+  }
+
+  function handleEditReminderRequest(id) {
+    setReturnTab(activeTab)
+    setEditingReminderId(id)
     setActiveTab('add-reminder')
   }
 
   function returnToOrigin() {
     setEditingId(null)
+    setEditingReminderId(null)
     setAddDefaultKind(null)
     if (returnTab) {
       setActiveTab(returnTab)
@@ -104,6 +114,7 @@ export default function App() {
   // state from wherever you were before.
   function handleNavSelect(tab) {
     setEditingId(null)
+    setEditingReminderId(null)
     setReturnTab(null)
     setAddDefaultKind(null)
     setActiveTab(tab)
@@ -161,8 +172,12 @@ export default function App() {
   // Reminders are purely local — no Google, no Notion — so these are plain
   // localStorage updates, kept async/awaitable only for symmetry with the
   // other forms/dialogs that expect a promise from onSave/onDelete.
-  async function handleSaveReminder(text) {
-    setReminders((prev) => [...prev, { id: crypto.randomUUID(), text, completed: false }])
+  async function handleSaveReminder(data) {
+    if (editingReminderId) {
+      setReminders((prev) => prev.map((r) => (r.id === editingReminderId ? { ...r, ...data } : r)))
+    } else {
+      setReminders((prev) => [...prev, { id: crypto.randomUUID(), completed: false, ...data }])
+    }
     returnToOrigin()
   }
 
@@ -172,6 +187,7 @@ export default function App() {
 
   async function handleDeleteReminder(id) {
     setReminders((prev) => prev.filter((r) => r.id !== id))
+    if (editingReminderId === id) returnToOrigin()
   }
 
   return (
@@ -208,6 +224,7 @@ export default function App() {
             <RemindersListView
               items={reminders}
               onAddRequest={handleAddReminderRequest}
+              onEdit={handleEditReminderRequest}
               onToggleComplete={handleToggleReminderComplete}
               onDelete={handleDeleteReminder}
             />
@@ -225,7 +242,12 @@ export default function App() {
             />
           )}
           {activeTab === 'add-reminder' && (
-            <ReminderForm canCancel={Boolean(returnTab)} onSave={handleSaveReminder} onCancel={returnToOrigin} />
+            <ReminderForm
+              editingReminder={editingReminder}
+              canCancel={Boolean(editingReminder || returnTab)}
+              onSave={handleSaveReminder}
+              onCancel={returnToOrigin}
+            />
           )}
         </main>
       </div>

@@ -3,7 +3,7 @@ import { formatTypedDigitsDisplay, parseTypedTime, splitTypedTime } from '../uti
 
 // Types a 4-digit clock time (e.g. "0230") plus an AM/PM dropdown, and
 // reports the parsed 24-hour "HH:MM" string the rest of the app uses.
-export default function TimeEntryInput({ value, onChange, required }) {
+export default function TimeEntryInput({ value, onChange, required, disabled }) {
   const [digits, setDigits] = useState(() => splitTypedTime(value).digits)
   const [period, setPeriod] = useState(() => splitTypedTime(value).period)
   const [focused, setFocused] = useState(false)
@@ -68,8 +68,9 @@ export default function TimeEntryInput({ value, onChange, required }) {
         onBlur={handleBlur}
         className="time-entry-digits"
         required={required}
+        disabled={disabled}
       />
-      <select value={period} onChange={handlePeriodChange} className="time-entry-period">
+      <select value={period} onChange={handlePeriodChange} className="time-entry-period" disabled={disabled}>
         <option value="AM">AM</option>
         <option value="PM">PM</option>
       </select>

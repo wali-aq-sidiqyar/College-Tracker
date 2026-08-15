@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { formatDateDisplay } from '../utils/date'
+import { formatTimeLabel } from '../utils/eventTime'
+import { groupReminders, isReminderOverdue } from '../utils/reminders'
 import ConfirmDialog from './ConfirmDialog'
 
-export default function RemindersListView({ items, onAddRequest, onToggleComplete, onDelete }) {
+export default function RemindersListView({ items, onAddRequest, onEdit, onToggleComplete, onDelete }) {
   const [showCompleted, setShowCompleted] = useState(false)
   const [completingIds, setCompletingIds] = useState(() => new Set())
   const [completeError, setCompleteError] = useState(null)
@@ -71,22 +74,26 @@ export default function RemindersListView({ items, onAddRequest, onToggleComplet
           {activeReminders.length === 0 ? (
             <p className="empty-state">Nothing active — nice work.</p>
           ) : (
-            <ReminderRows
+            <ReminderGroups
               reminders={activeReminders}
               completingIds={completingIds}
+              showOverdue
               onToggleComplete={handleToggleComplete}
               onRequestDelete={setPendingDeleteId}
+              onEdit={onEdit}
             />
           )}
 
           {showCompleted && completedReminders.length > 0 && (
             <section className="event-section">
               <h3 className="event-section-heading">Completed</h3>
-              <ReminderRows
+              <ReminderGroups
                 reminders={completedReminders}
                 completingIds={completingIds}
+                showOverdue={false}
                 onToggleComplete={handleToggleComplete}
                 onRequestDelete={setPendingDeleteId}
+                onEdit={onEdit}
               />
             </section>
           )}
@@ -109,7 +116,46 @@ export default function RemindersListView({ items, onAddRequest, onToggleComplet
   )
 }
 
-function ReminderRows({ reminders, completingIds, onToggleComplete, onRequestDelete }) {
+// Dated reminders (soonest-first) and timeless ones are kept visually
+// separate rather than interleaved — headings only appear when both groups
+// are actually present, so a list that's all-one-kind stays unlabeled.
+function ReminderGroups({ reminders, completingIds, showOverdue, onToggleComplete, onRequestDelete, onEdit }) {
+  const { scheduled, timeless } = groupReminders(reminders)
+  const showHeadings = scheduled.length > 0 && timeless.length > 0
+
+  return (
+    <>
+      {scheduled.length > 0 && (
+        <section className="event-section">
+          {showHeadings && <h3 className="event-section-heading">Scheduled</h3>}
+          <ReminderRows
+            reminders={scheduled}
+            completingIds={completingIds}
+            showOverdue={showOverdue}
+            onToggleComplete={onToggleComplete}
+            onRequestDelete={onRequestDelete}
+            onEdit={onEdit}
+          />
+        </section>
+      )}
+      {timeless.length > 0 && (
+        <section className="event-section">
+          {showHeadings && <h3 className="event-section-heading">No date</h3>}
+          <ReminderRows
+            reminders={timeless}
+            completingIds={completingIds}
+            showOverdue={showOverdue}
+            onToggleComplete={onToggleComplete}
+            onRequestDelete={onRequestDelete}
+            onEdit={onEdit}
+          />
+        </section>
+      )}
+    </>
+  )
+}
+
+function ReminderRows({ reminders, completingIds, showOverdue, onToggleComplete, onRequestDelete, onEdit }) {
   return (
     <ul className="item-list">
       {reminders.map((reminder) => (
@@ -134,6 +180,18 @@ function ReminderRows({ reminders, completingIds, onToggleComplete, onRequestDel
             </span>
           </label>
           <span className="reminder-row-text">{reminder.text}</span>
+          {reminder.date && (
+            <span className="reminder-row-datetime">
+              {formatDateDisplay(reminder.date)}
+              {reminder.time && ` · ${formatTimeLabel(reminder.time)}`}
+              {showOverdue && isReminderOverdue(reminder) && (
+                <span className="reminder-row-overdue">Overdue</span>
+              )}
+            </span>
+          )}
+          <button type="button" className="ghost" onClick={() => onEdit(reminder.id)}>
+            Edit
+          </button>
           <button type="button" className="ghost danger" onClick={() => onRequestDelete(reminder.id)}>
             Delete
           </button>
