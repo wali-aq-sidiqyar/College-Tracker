@@ -684,103 +684,153 @@ input[type='checkbox'].checkbox-complete {
   border-left: 1px dashed var(--line-strong);
 }
 
-/* Notes view — folder tree */
+/* Notes view — dual navigation tree (expand-in-place + drill-in) */
 
 .notes-view {
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
+  max-width: 920px;
 }
 
 .notes-toolbar {
   display: flex;
 }
 
-.folder-list {
+.notes-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.notes-back {
+  flex-shrink: 0;
+}
+
+.notes-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.notes-breadcrumb button {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  color: var(--ink-soft);
+  font: 500 var(--fs-sm) / 1.2 var(--font-mono);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.notes-breadcrumb button:hover:not(:disabled) {
+  color: var(--rail);
+}
+
+.notes-breadcrumb button:disabled {
+  color: var(--ink);
+  cursor: default;
+}
+
+.notes-breadcrumb-sep {
+  color: var(--ink-faint);
+}
+
+.notes-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
+  gap: var(--sp-2);
 }
 
-.folder-list-nested {
-  margin: 2px 0 2px 9px;
-  padding-left: 18px;
-  border-left: 1px solid var(--line);
+.notes-row-children {
+  margin: var(--sp-2) 0 0 13px;
+  padding-left: var(--sp-4);
+  border-left: 1px dashed var(--line);
 }
 
-.folder-row-main {
+.notes-row-main {
   display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-  padding: 3px var(--sp-2);
-  border-radius: var(--radius-sm);
+  align-items: stretch;
+  gap: var(--sp-2);
 }
 
-.folder-row-main:hover {
-  background: var(--surface-sunken);
-}
-
-.folder-row-main:focus-within .folder-row-actions {
-  opacity: 1;
-}
-
-.folder-caret {
-  display: inline-flex;
+.notes-row-caret {
+  display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 18px;
-  height: 18px;
+  width: 28px;
   background: transparent;
   border: none;
   padding: 0;
   color: var(--ink-faint);
 }
 
-.folder-caret-empty {
+.notes-row-caret:hover {
+  color: var(--rail);
+}
+
+.notes-row-caret-empty {
   visibility: hidden;
 }
 
-.folder-caret svg {
+.notes-row-caret svg {
   transition: transform 150ms ease;
 }
 
-.folder-caret.expanded svg {
+.notes-row-caret.expanded svg {
   transform: rotate(90deg);
 }
 
-.folder-row-main svg {
+.notes-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.notes-row-body:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--glow-sm);
+}
+
+.notes-row-body svg {
+  flex-shrink: 0;
+  color: var(--rail);
+}
+
+.notes-row-body-note svg {
   color: var(--ink-faint);
 }
 
-.folder-name {
+.notes-row-label {
   flex: 1;
   min-width: 0;
-  background: none;
-  border: none;
-  padding: 3px 4px;
-  border-radius: 4px;
-  color: var(--ink);
-  font: 500 var(--fs-sm) / 1.3 var(--font-body);
-  text-transform: none;
-  letter-spacing: normal;
-  text-align: left;
+  font: 600 var(--fs-base) / 1.3 var(--font-body);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.note-row-main {
-  cursor: pointer;
-}
-
-.note-name {
-  cursor: pointer;
-}
-
-.note-row-date {
+.notes-row-count,
+.notes-row-date {
   flex-shrink: 0;
   color: var(--ink-faint);
   font: 500 var(--fs-xs) / 1 var(--font-mono);
@@ -788,7 +838,34 @@ input[type='checkbox'].checkbox-complete {
   letter-spacing: 0.04em;
 }
 
-/* Note preview */
+/* Full-page note (drill-in mode) */
+
+.note-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.note-page h2 {
+  margin: 0;
+  font-size: var(--fs-2xl);
+}
+
+.note-page-meta {
+  margin: 0;
+  color: var(--ink-faint);
+  font: 500 var(--fs-sm) / 1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.note-page-body {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--line);
+}
+
+/* Note preview (tree-mode modal) */
 
 .note-preview-card {
   display: flex;

@@ -61,36 +61,47 @@ function sortNotesNewestFirst(notes) {
   return [...notes].sort((a, b) => (b.date || NO_DATE).localeCompare(a.date || NO_DATE))
 }
 
-// Builds Year > Semester > Class > notes from the flat list the backend
-// returns. The Notion data is flat/tagged — this is the only place the
-// nesting gets constructed.
-export function buildNotesTree(notes) {
-  const byYear = groupByKey(notes, (n) => n.year?.trim())
-  return orderedEntries(byYear, UNKNOWN_YEAR, compareYears).map(({ label: year, items: yearNotes }) => ({
-    key: `year:${year}`,
-    label: year,
-    semesters: buildSemesters(yearNotes),
-  }))
+function sumCounts(folders) {
+  return folders.reduce((sum, folder) => sum + folder.count, 0)
 }
 
-function buildSemesters(notes) {
+// Builds a uniform Year > Semester > Class > note tree from the flat list
+// the backend returns — folder nodes ({ type: 'folder', children }) all the
+// way down to note leaves ({ type: 'note' }). One shape for every level is
+// what lets a single recursive row component handle expand-in-place and
+// drill-in navigation at any depth, rather than four bespoke levels.
+export function buildNotesTree(notes) {
+  const byYear = groupByKey(notes, (n) => n.year?.trim())
+  return orderedEntries(byYear, UNKNOWN_YEAR, compareYears).map(({ label: year, items: yearNotes }) => {
+    const key = `year:${year}`
+    const children = buildSemesters(key, yearNotes)
+    return { type: 'folder', level: 'year', key, label: year, count: sumCounts(children), children }
+  })
+}
+
+function buildSemesters(parentKey, notes) {
   const bySemester = groupByKey(notes, (n) => n.semester?.trim())
   return orderedEntries(bySemester, UNKNOWN_SEMESTER, compareSemesters).map(
-    ({ label: semester, items: semesterNotes }) => ({
-      key: `semester:${semester}`,
-      label: semester,
-      classes: buildClasses(semesterNotes),
-    })
+    ({ label: semester, items: semesterNotes }) => {
+      const key = `${parentKey}/semester:${semester}`
+      const children = buildClasses(key, semesterNotes)
+      return { type: 'folder', level: 'semester', key, label: semester, count: sumCounts(children), children }
+    }
   )
 }
 
-function buildClasses(notes) {
+function buildClasses(parentKey, notes) {
   const byClass = groupByKey(notes, (n) => n.className?.trim())
   return orderedEntries(byClass, UNKNOWN_CLASS, (a, b) => a.localeCompare(b)).map(
-    ({ label: className, items: classNotes }) => ({
-      key: `class:${className}`,
-      label: className,
-      notes: sortNotesNewestFirst(classNotes),
-    })
+    ({ label: className, items: classNotes }) => {
+      const key = `${parentKey}/class:${className}`
+      const children = sortNotesNewestFirst(classNotes).map((note) => ({
+        type: 'note',
+        key: note.id,
+        label: note.title,
+        note,
+      }))
+      return { type: 'folder', level: 'class', key, label: className, count: children.length, children }
+    }
   )
 }

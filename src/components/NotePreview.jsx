@@ -1,40 +1,14 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { formatDateDisplay } from '../utils/date'
-import { NotionBlockList } from './NotionBlocks'
+import NoteContent from './NoteContent'
 
-// Fetches fresh block content every time a note is opened, rather than
-// caching it — Notion's image URLs are pre-signed and expire after about an
-// hour, so a cached render would eventually show broken images.
+// Only used in tree mode (see NotesView) — drilling in renders the note
+// inline on the page instead of in this modal.
 export default function NotePreview({ note, onClose }) {
-  const [blocks, setBlocks] = useState(null)
-  const [error, setError] = useState(null)
   const closeRef = useRef(null)
   const previouslyFocused = useRef(null)
   const titleId = useId()
-
-  useEffect(() => {
-    if (!note) return
-    let cancelled = false
-    setBlocks(null)
-    setError(null)
-
-    fetch(`/api/notion/notes/${note.id}/blocks`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Could not load this note from Notion.')
-        return res.json()
-      })
-      .then((data) => {
-        if (!cancelled) setBlocks(data.blocks)
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err.message || 'Could not load this note from Notion.')
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [note])
 
   useEffect(() => {
     if (!note) return
@@ -89,14 +63,7 @@ export default function NotePreview({ note, onClose }) {
         </a>
 
         <div className="note-preview-body">
-          {error && <p className="dialog-error">{error}</p>}
-          {!error && !blocks && <p className="empty-state">Loading…</p>}
-          {!error && blocks && blocks.length === 0 && <p className="empty-state">This note is empty.</p>}
-          {!error && blocks && blocks.length > 0 && (
-            <div className="notion-content">
-              <NotionBlockList blocks={blocks} />
-            </div>
-          )}
+          <NoteContent note={note} />
         </div>
       </div>
     </div>,
