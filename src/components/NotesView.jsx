@@ -1,19 +1,15 @@
-import { useState } from 'react'
-import { useLocalStorage } from '../hooks/useLocalStorage'
-import { addChild, countDescendants, createFolder, removeNode, renameNode } from '../utils/folderTree'
-import FolderTree from './FolderTree'
-import ConfirmDialog from './ConfirmDialog'
+import { useMemo, useState } from 'react'
+import { useNotionNotes } from '../hooks/useNotionNotes'
+import { buildNotesTree } from '../utils/notesTree'
+import NotesTree from './NotesTree'
+import NotePreview from './NotePreview'
 
 export default function NotesView() {
-  const [folders, setFolders] = useLocalStorage('college-tracker-notes-folders', [])
+  const { notes, loading, error, configured, refresh } = useNotionNotes()
   const [expandedIds, setExpandedIds] = useState(() => new Set())
-  const [renamingId, setRenamingId] = useState(null)
-  const [addingParentId, setAddingParentId] = useState(undefined)
-  const [pendingDelete, setPendingDelete] = useState(null)
+  const [openNote, setOpenNote] = useState(null)
 
-  function expand(id) {
-    setExpandedIds((prev) => new Set(prev).add(id))
-  }
+  const tree = useMemo(() => buildNotesTree(notes), [notes])
 
   function toggleExpanded(id) {
     setExpandedIds((prev) => {
@@ -24,79 +20,34 @@ export default function NotesView() {
     })
   }
 
-  function startAdd(parentId) {
-    if (parentId !== null) expand(parentId)
-    setRenamingId(null)
-    setAddingParentId(parentId)
-  }
-
-  function handleAdd(parentId, name) {
-    setFolders((prev) => addChild(prev, parentId, createFolder(name)))
-    setAddingParentId(undefined)
-  }
-
-  function startRename(id) {
-    setAddingParentId(undefined)
-    setRenamingId(id)
-  }
-
-  function handleRename(id, name) {
-    setFolders((prev) => renameNode(prev, id, name))
-    setRenamingId(null)
-  }
-
-  function startDelete(node) {
-    setAddingParentId(undefined)
-    setRenamingId(null)
-    setPendingDelete({ id: node.id, name: node.name, descendantCount: countDescendants(node) })
-  }
-
-  function confirmDelete() {
-    setFolders((prev) => removeNode(prev, pendingDelete.id))
-    setPendingDelete(null)
-  }
-
-  const showTree = folders.length > 0 || addingParentId === null
-
   return (
     <div className="notes-view">
       <div className="notes-toolbar">
-        <button type="button" onClick={() => startAdd(null)}>
-          New folder
+        <button type="button" onClick={refresh} disabled={loading}>
+          {loading ? 'Refreshing…' : 'Refresh'}
         </button>
       </div>
 
-      {showTree ? (
-        <FolderTree
-          nodes={folders}
-          parentId={null}
-          expandedIds={expandedIds}
-          onToggle={toggleExpanded}
-          renamingId={renamingId}
-          onStartRename={startRename}
-          onRename={handleRename}
-          onCancelRename={() => setRenamingId(null)}
-          addingParentId={addingParentId}
-          onStartAdd={startAdd}
-          onAdd={handleAdd}
-          onCancelAdd={() => setAddingParentId(undefined)}
-          onStartDelete={startDelete}
-        />
-      ) : (
-        <p className="empty-state">No folders yet. Create one to start organizing notes.</p>
+      {!configured && (
+        <p className="empty-state">
+          Notion isn&rsquo;t connected yet. Add <code>NOTION_API_KEY</code> and{' '}
+          <code>NOTION_DATABASE_ID</code> to the backend&rsquo;s <code>.env</code> and restart the server.
+        </p>
       )}
 
-      <ConfirmDialog
-        open={pendingDelete !== null}
-        title={`Delete “${pendingDelete?.name}”?`}
-        description={
-          pendingDelete?.descendantCount > 0
-            ? `This will also delete ${pendingDelete.descendantCount} subfolder${pendingDelete.descendantCount === 1 ? '' : 's'}. This can't be undone.`
-            : "This can't be undone."
-        }
-        onConfirm={confirmDelete}
-        onCancel={() => setPendingDelete(null)}
-      />
+      {configured && error && <p className="dialog-error">{error}</p>}
+
+      {configured && !error && loading && notes.length === 0 && <p className="empty-state">Loading notes…</p>}
+
+      {configured && !error && !loading && notes.length === 0 && (
+        <p className="empty-state">No notes found in the Class Notes database yet.</p>
+      )}
+
+      {configured && !error && notes.length > 0 && (
+        <NotesTree tree={tree} expandedIds={expandedIds} onToggle={toggleExpanded} onOpenNote={setOpenNote} />
+      )}
+
+      <NotePreview note={openNote} onClose={() => setOpenNote(null)} />
     </div>
   )
 }
