@@ -53,6 +53,11 @@ export default function CalendarView({ items, onEdit, onDelete }) {
     setAnchorDate((prev) => shiftAnchor(prev, granularity, 1))
   }
 
+  function handleSelectDay(date) {
+    setAnchorDate(date)
+    setGranularity('day')
+  }
+
   return (
     <div className="calendar-view">
       <div className="calendar-header">
@@ -84,6 +89,7 @@ export default function CalendarView({ items, onEdit, onDelete }) {
           anchorDate={anchorDate}
           onEdit={onEdit}
           onRequestDelete={requestDelete}
+          onSelectDay={handleSelectDay}
         />
       ) : (
         <TimeGridView

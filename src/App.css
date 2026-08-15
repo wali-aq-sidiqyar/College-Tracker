@@ -1195,6 +1195,18 @@ input[type='checkbox'].checkbox {
   display: flex;
   flex-direction: column;
   gap: var(--sp-1);
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.calendar-cell:not(.calendar-cell-today):hover {
+  border-color: var(--line-strong);
+  box-shadow: 0 0 0 1px var(--line-strong);
+}
+
+.calendar-cell:focus-visible {
+  outline: 2px solid var(--rail);
+  outline-offset: 2px;
 }
 
 .calendar-cell-outside {
@@ -1399,6 +1411,7 @@ input[type='checkbox'].checkbox {
 .time-block {
   position: absolute;
   overflow: hidden;
+  min-height: 18px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--rail);
   border-radius: var(--radius-sm);
@@ -1414,6 +1427,17 @@ input[type='checkbox'].checkbox {
   gap: 1px;
   box-shadow: var(--shadow-sm);
   transition: box-shadow 120ms ease, border-color 120ms ease;
+}
+
+/* Short events (< 40min) drop the time-range line entirely rather than
+   clipping it mid-character — just the title, vertically centered so it
+   doesn't look stranded at the top of a very short block. */
+.time-block-compact {
+  justify-content: center;
+}
+
+.time-block-compact .time-block-title {
+  font-size: 0.6875rem;
 }
 
 .time-block:hover {

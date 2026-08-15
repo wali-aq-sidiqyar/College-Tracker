@@ -98,13 +98,19 @@ export default function TimeGridView({ items, anchorDate, days, onEdit, onReques
               ))}
               {placements.map(({ event, col, totalColumns }) => {
                 const summary = buildItemSummary(event)
+                const durationMinutes = event.endMinutes - event.startMinutes
+                // A block this short can't fit a title AND a time line
+                // without either clipping mid-character — drop the time
+                // line and lean on the title/hover tooltip instead, rather
+                // than cramming both in.
+                const isCompact = durationMinutes < 40
                 return (
                   <button
                     key={event.id}
-                    className={`time-block time-block-${typeSlug(event.type)}`}
+                    className={`time-block time-block-${typeSlug(event.type)}${isCompact ? ' time-block-compact' : ''}`}
                     style={{
                       top: `${(event.startMinutes / 60) * HOUR_HEIGHT}px`,
-                      height: `${((event.endMinutes - event.startMinutes) / 60) * HOUR_HEIGHT}px`,
+                      height: `${(durationMinutes / 60) * HOUR_HEIGHT}px`,
                       left: `${(col / totalColumns) * 100}%`,
                       width: `calc(${100 / totalColumns}% - 2px)`,
                     }}
@@ -113,7 +119,9 @@ export default function TimeGridView({ items, anchorDate, days, onEdit, onReques
                     title={`${event.title}${summary ? ' — ' + summary : ''} (double-click to delete)`}
                   >
                     <span className="time-block-title">{event.title}</span>
-                    <span className="time-block-time">{formatTimeRange(event.startTime, event.endTime)}</span>
+                    {!isCompact && (
+                      <span className="time-block-time">{formatTimeRange(event.startTime, event.endTime)}</span>
+                    )}
                   </button>
                 )
               })}

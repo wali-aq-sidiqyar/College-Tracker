@@ -2,7 +2,7 @@ import { buildMonthGrid, todayISO, WEEKDAY_LABELS } from '../utils/date'
 import { buildItemSummary, formatTimeCompact, parseTimeToMinutes } from '../utils/eventTime'
 import { typeSlug } from '../utils/itemTypes'
 
-export default function MonthView({ items, anchorDate, onEdit, onRequestDelete }) {
+export default function MonthView({ items, anchorDate, onEdit, onRequestDelete, onSelectDay }) {
   const cells = buildMonthGrid(anchorDate.getFullYear(), anchorDate.getMonth())
   const itemsByDate = groupByDate(items)
   const todayIso = todayISO()
@@ -21,6 +21,16 @@ export default function MonthView({ items, anchorDate, onEdit, onRequestDelete }
             cell.inCurrentMonth ? '' : 'calendar-cell-outside',
             cell.iso === todayIso ? 'calendar-cell-today' : '',
           ].join(' ').trim()}
+          onClick={() => onSelectDay(cell.date)}
+          role="button"
+          tabIndex={0}
+          aria-label={`View ${cell.iso}`}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onSelectDay(cell.date)
+            }
+          }}
         >
           <span className="calendar-cell-daynum">{cell.date.getDate()}</span>
           <div className="calendar-cell-items">
@@ -31,8 +41,14 @@ export default function MonthView({ items, anchorDate, onEdit, onRequestDelete }
                 <button
                   key={item.id}
                   className={`calendar-chip calendar-chip-${typeSlug(item.type)}`}
-                  onClick={() => onEdit(item.id)}
-                  onDoubleClick={() => onRequestDelete(item.id)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEdit(item.id)
+                  }}
+                  onDoubleClick={(e) => {
+                    e.stopPropagation()
+                    onRequestDelete(item.id)
+                  }}
                   title={`${item.title}${summary ? ' — ' + summary : ''} (double-click to delete)`}
                 >
                   {prefix}{item.title}
