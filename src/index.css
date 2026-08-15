@@ -126,6 +126,45 @@
 body {
   margin: 0;
   background-color: var(--bg);
+}
+
+/* City photo layer — off by default, faded in only when
+   html[data-bg-image="on"]. Sits behind the grid/glow layer below it
+   (::before paints under ::after), heavily darkened and vignetted so
+   it reads as atmosphere, never competing with foreground text. Toggling
+   this is independent of the theme itself: the palette above applies in
+   full either way. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(5, 4, 11, 0.62), rgba(5, 4, 11, 0.8)),
+    radial-gradient(ellipse 78% 72% at 50% 34%, transparent 0%, rgba(5, 4, 11, 0.55) 55%, var(--bg) 100%),
+    url('/night-city.jpeg');
+  background-size: 100% 100%, 100% 100%, cover;
+  background-position: center, center, center 32%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+
+html[data-bg-image='on'] body::before {
+  opacity: 1;
+}
+
+/* Tech-grid + neon ambient glow — always on, regardless of the photo
+   toggle, and painted above the photo layer so the grid/scanline
+   texture reads as part of the same atmosphere as the skyline. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background-image:
     linear-gradient(rgba(0, 229, 255, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 229, 255, 0.035) 1px, transparent 1px),

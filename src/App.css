@@ -136,6 +136,41 @@
   gap: var(--sp-2);
 }
 
+/* City background photo toggle — independent of the theme itself, so it
+   gets its own small on/off control rather than living inside a future
+   theme switcher. */
+.bg-image-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-soft);
+  font: 600 var(--fs-xs) / 1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--sp-2) var(--sp-3);
+}
+
+.bg-image-toggle:hover {
+  border-color: var(--accent-3);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+.bg-image-toggle.active {
+  border-color: var(--accent-3);
+  color: var(--accent-3);
+  background: var(--accent-3-soft);
+  box-shadow: 0 0 0 1px rgba(139, 45, 255, 0.35), 0 0 12px rgba(139, 45, 255, 0.3);
+}
+
+.bg-image-toggle-state {
+  margin-left: auto;
+  opacity: 0.8;
+}
+
 /* Google Calendar connect status, sidebar footer */
 
 .google-status {

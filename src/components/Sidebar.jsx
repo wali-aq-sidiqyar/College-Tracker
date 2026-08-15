@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { key: 'add', label: 'Add', icon: PlusIcon },
 ]
 
-export default function Sidebar({ activeTab, onSelect, google }) {
+export default function Sidebar({ activeTab, onSelect, google, bgImageOn, onToggleBgImage }) {
   return (
     <nav className="sidebar" aria-label="Sections">
       <div className="sidebar-brand">
@@ -37,6 +37,16 @@ export default function Sidebar({ activeTab, onSelect, google }) {
       </div>
 
       <div className="sidebar-footer">
+        <button
+          type="button"
+          className={`bg-image-toggle${bgImageOn ? ' active' : ''}`}
+          aria-pressed={bgImageOn}
+          onClick={onToggleBgImage}
+        >
+          <CityIcon />
+          <span>City BG</span>
+          <span className="bg-image-toggle-state">{bgImageOn ? 'On' : 'Off'}</span>
+        </button>
         <GoogleCalendarStatus google={google} />
         <span className="today-chip">{todayBoardLabel()}</span>
       </div>
@@ -127,6 +137,20 @@ function PlusIcon() {
     <svg {...iconProps()}>
       <line x1="12" y1="5" x2="12" y2="19" />
       <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  )
+}
+
+function CityIcon() {
+  return (
+    <svg {...iconProps({ width: 16, height: 16 })}>
+      <path d="M3 21h18" />
+      <path d="M5 21V9l4-3v15" />
+      <path d="M13 21V5l4-2v18" />
+      <path d="M9 9h.01" />
+      <path d="M9 13h.01" />
+      <path d="M17 9h.01" />
+      <path d="M17 13h.01" />
     </svg>
   )
 }

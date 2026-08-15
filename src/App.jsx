@@ -25,6 +25,7 @@ const TAB_TITLES = {
 export default function App() {
   const [items, setItems] = useLocalStorage('college-tracker-items', [])
   const [reminders, setReminders] = useLocalStorage('college-tracker-reminders', [])
+  const [bgImageOn, setBgImageOn] = useLocalStorage('college-tracker-bg-image', true)
   const google = useGoogleCalendar()
   const notion = useNotionNotes()
   const [activeTab, setActiveTab] = useState('calendar')
@@ -50,6 +51,13 @@ export default function App() {
     if (!window.location.search.includes('google=')) return
     window.history.replaceState(null, '', window.location.pathname)
   }, [])
+
+  // Independent of the theme itself — the city photo is purely a CSS
+  // layer gated on this attribute, so toggling it never touches which
+  // theme tokens are applied.
+  useEffect(() => {
+    document.documentElement.dataset.bgImage = bgImageOn ? 'on' : 'off'
+  }, [bgImageOn])
 
   const allItems = [...items, ...google.events]
   const taskItems = allItems.filter((item) => item.kind === 'task')
@@ -192,7 +200,13 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <Sidebar activeTab={activeTab} onSelect={handleNavSelect} google={google} />
+      <Sidebar
+        activeTab={activeTab}
+        onSelect={handleNavSelect}
+        google={google}
+        bgImageOn={bgImageOn}
+        onToggleBgImage={() => setBgImageOn((prev) => !prev)}
+      />
 
       <div className="app-main">
         <header className="app-header">
