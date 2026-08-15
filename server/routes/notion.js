@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createPage, fetchBlockTree, getDatabaseSchema, isConfigured, queryDatabaseAll } from '../notionClient.js'
+import { createPage, fetchBlockTree, getDatabaseSchema, isConfigured, notionFetch, queryDatabaseAll } from '../notionClient.js'
 
 const router = Router()
 
@@ -95,6 +95,21 @@ router.post('/notes', async (req, res) => {
     res.status(201).json({ id: page.id, url: page.url })
   } catch (err) {
     console.error('Notion page create failed:', err.message)
+    res.status(502).json({ error: 'notion_api_error' })
+  }
+})
+
+// Archives (not permanently deletes) — the page moves to Notion's trash and
+// is recoverable there, same as manually trashing it in Notion's own UI.
+router.delete('/notes/:pageId', async (req, res) => {
+  try {
+    await notionFetch(`/pages/${req.params.pageId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ archived: true }),
+    })
+    res.status(204).end()
+  } catch (err) {
+    console.error('Notion page archive failed:', err.message)
     res.status(502).json({ error: 'notion_api_error' })
   }
 })

@@ -6,6 +6,7 @@ import NotesTree from './NotesTree'
 import NotePreview from './NotePreview'
 import NoteContent from './NoteContent'
 import NewNoteDialog from './NewNoteDialog'
+import ClassNotesList from './ClassNotesList'
 
 export default function NotesView() {
   const { notes, loading, error, configured, refresh } = useNotionNotes()
@@ -82,6 +83,20 @@ export default function NotesView() {
     return created
   }
 
+  // Notes are already a flat list once you're drilled into a Class — no
+  // recursion involved, so opening one just extends drillPath directly
+  // (drilling into a note always means "view its content inline" here,
+  // since this list only ever renders once you're already drilled in).
+  function openNoteInline(note) {
+    setDrillPath((prev) => [...prev, { type: 'note', key: note.id, label: note.title, note }])
+  }
+
+  async function handleDeleteNote(id) {
+    const res = await fetch(`/api/notion/notes/${id}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error('Could not delete this note in Notion.')
+    refresh()
+  }
+
   return (
     <div className="notes-view">
       <div className="notes-toolbar">
@@ -148,6 +163,12 @@ export default function NotesView() {
                 <NoteContent note={viewingNote} />
               </div>
             </div>
+          ) : viewingClass ? (
+            <ClassNotesList
+              notes={currentNodes.map((node) => node.note)}
+              onOpenNote={openNoteInline}
+              onDeleteNote={handleDeleteNote}
+            />
           ) : (
             <NotesTree
               nodes={currentNodes}
