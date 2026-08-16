@@ -11,7 +11,8 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "electron:dev": "npm run build && electron ."
+    "electron:dev": "npm run build && electron .",
+    "dist:mac": "npm run build && electron-builder --mac"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
@@ -47,7 +48,9 @@
       }
     ],
     "mac": {
-      "target": "dir"
+      "target": ["dmg", "dir"],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.education"
     }
   }
 }

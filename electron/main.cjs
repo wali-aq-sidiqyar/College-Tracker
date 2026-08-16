@@ -15,9 +15,17 @@ const { fork } = require('node:child_process')
 
 const isPackaged = app.isPackaged
 
-// asar packaging is disabled (see package.json "build" config) so this
-// file's location relative to server/ is identical in dev and packaged
-// builds — no separate packaged-path branch needed here.
+// Electron's app.getPath('userData') defaults to package.json's "name"
+// ("college-tracker"), not the "College Tracker" shown in the Dock/menu
+// bar (that's productName, an electron-builder/Info.plist concern) —
+// without this they'd silently diverge and token storage would end up
+// in a folder that doesn't match the app's visible name anywhere else.
+app.setName('College Tracker')
+
+// server/ sits alongside this file whether that's inside app.asar
+// (packaged) or the plain project tree (dev) — Electron's fork()
+// transparently reads scripts from inside an asar archive, so no
+// separate packaged-path branch is needed here.
 const serverEntry = path.join(__dirname, '..', 'server', 'index.js')
 
 // .env isn't part of the normal source tree — electron-builder copies
