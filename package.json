@@ -29,5 +29,25 @@
     "electron-builder": "^26.15.3",
     "oxlint": "^1.75.0",
     "vite": "^8.2.0"
+  },
+  "build": {
+    "appId": "com.wali.college-tracker",
+    "productName": "College Tracker",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "server/**/*",
+      "!server/tokens.json",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".env",
+        "to": ".env"
+      }
+    ],
+    "mac": {
+      "target": "dir"
+    }
   }
 }
