@@ -130,24 +130,30 @@ body {
 
 /* City photo layer — off by default, faded in only when
    html[data-bg-image="on"]. Sits behind the grid/glow layer below it
-   (::before paints under ::after), heavily darkened and vignetted so
-   it reads as atmosphere, never competing with foreground text. Toggling
-   this is independent of the theme itself: the palette above applies in
-   full either way. */
+   (::before paints under ::after), darkened and vignetted toward the
+   edges (where UI content lives) but genuinely visible through the
+   middle. Toggling this is independent of the theme itself: the
+   palette above applies in full either way.
+
+   z-index is 0, not negative: body's own solid background-color paints
+   ahead of negative-z-index fixed children in this stacking arrangement
+   (sidebar/app-main sit above at z-index 1, so 0 is still safely behind
+   real content) — a negative value here fully occludes the layer. */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: -2;
+  z-index: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(5, 4, 11, 0.62), rgba(5, 4, 11, 0.8)),
-    radial-gradient(ellipse 78% 72% at 50% 34%, transparent 0%, rgba(5, 4, 11, 0.55) 55%, var(--bg) 100%),
+    linear-gradient(rgba(5, 4, 11, 0.22), rgba(5, 4, 11, 0.42)),
+    radial-gradient(ellipse 90% 85% at 50% 26%, transparent 0%, rgba(5, 4, 11, 0.3) 45%, rgba(5, 4, 11, 0.88) 100%),
     url('/night-city.jpeg');
   background-size: 100% 100%, 100% 100%, cover;
-  background-position: center, center, center 32%;
+  background-position: center, center, center 22%;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  filter: saturate(1.3) contrast(1.05);
   opacity: 0;
   transition: opacity var(--duration-slow) var(--ease-out);
 }
@@ -157,13 +163,15 @@ html[data-bg-image='on'] body::before {
 }
 
 /* Tech-grid + neon ambient glow — always on, regardless of the photo
-   toggle, and painted above the photo layer so the grid/scanline
-   texture reads as part of the same atmosphere as the skyline. */
+   toggle, and painted above the photo layer (same z-index as ::before;
+   ::after always paints above ::before for a shared element) so the
+   grid/scanline texture reads as part of the same atmosphere as the
+   skyline. */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   background-image:
     linear-gradient(rgba(0, 229, 255, 0.035) 1px, transparent 1px),
