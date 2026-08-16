@@ -46,7 +46,7 @@
   padding: var(--sp-5) var(--sp-3);
   background: var(--surface-sunken);
   border-right: 1px solid var(--line);
-  box-shadow: 1px 0 0 0 rgba(0, 229, 255, 0.1);
+  box-shadow: 1px 0 0 0 color-mix(in srgb, var(--rail) 10%, transparent);
   position: relative;
   z-index: 1;
   animation: shell-in-side var(--duration-slow) var(--ease-out) both;
@@ -61,7 +61,8 @@
 
 .sidebar-mark {
   flex-shrink: 0;
-  filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.85)) drop-shadow(0 0 16px rgba(0, 229, 255, 0.35));
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--rail) 85%, transparent))
+    drop-shadow(0 0 16px color-mix(in srgb, var(--rail) 35%, transparent));
   animation: neon-flicker-in 900ms steps(1) 250ms both;
 }
 
@@ -81,7 +82,7 @@
 }
 
 .sidebar-tagline {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: 0.6875rem;
   letter-spacing: 0.02em;
   color: var(--ink-faint);
@@ -104,7 +105,7 @@
   padding: var(--sp-2) var(--sp-3);
   border-radius: var(--radius-sm);
   text-align: left;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -147,7 +148,7 @@
   background: transparent;
   border: 1px solid var(--line-strong);
   color: var(--ink-soft);
-  font: 600 var(--fs-xs) / 1 var(--font-mono);
+  font: 600 var(--fs-xs) / 1 var(--font-label);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: var(--sp-2) var(--sp-3);
@@ -163,7 +164,8 @@
   border-color: var(--accent-3);
   color: var(--accent-3);
   background: var(--accent-3-soft);
-  box-shadow: 0 0 0 1px rgba(139, 45, 255, 0.35), 0 0 12px rgba(139, 45, 255, 0.3);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-3) 35%, transparent),
+    0 0 12px color-mix(in srgb, var(--accent-3) 30%, transparent);
 }
 
 .bg-image-toggle-state {
@@ -180,7 +182,7 @@
 }
 
 .google-status-checking {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   color: var(--ink-faint);
   letter-spacing: 0.03em;
@@ -191,7 +193,7 @@
   align-items: center;
   gap: var(--sp-2);
   flex-wrap: wrap;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   letter-spacing: 0.03em;
   color: var(--ink-soft);
@@ -230,7 +232,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   font-weight: 500;
   letter-spacing: 0.04em;
@@ -294,7 +296,8 @@ main > * {
 .app-header h1 {
   font-size: var(--fs-2xl);
   letter-spacing: 0.02em;
-  text-shadow: 0 0 18px rgba(0, 229, 255, 0.55), 0 0 42px rgba(0, 229, 255, 0.25);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--rail) 55%, transparent),
+    0 0 42px color-mix(in srgb, var(--rail) 25%, transparent);
 }
 
 /* Segmented toggle — reused for Event/Task and Month/Week/Day */
@@ -329,6 +332,17 @@ main > * {
   box-shadow: 0 0 10px -3px var(--rail-glow);
 }
 
+/* Theme switcher — a .segmented control stretched to fill the sidebar
+   footer's width, each option sharing it evenly. */
+.theme-switcher {
+  display: flex;
+  width: 100%;
+}
+
+.theme-switcher button {
+  flex: 1;
+}
+
 /* Item form */
 
 .item-form {
@@ -360,7 +374,7 @@ main > * {
 
 .google-write-hint {
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   letter-spacing: 0.03em;
   color: var(--ink-faint);
@@ -402,7 +416,7 @@ main > * {
 
 .time-entry-digits {
   width: 4.5em;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   letter-spacing: 0.05em;
   text-align: center;
 }
@@ -432,7 +446,7 @@ main > * {
   align-items: center;
   gap: var(--sp-2);
   margin-left: auto;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -617,7 +631,7 @@ main > * {
   align-items: center;
   gap: var(--sp-2);
   color: var(--ink-faint);
-  font: 500 var(--fs-xs) / 1 var(--font-mono);
+  font: 500 var(--fs-xs) / 1 var(--font-label);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -629,7 +643,7 @@ main > * {
 }
 
 .item-badge {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   font-weight: 600;
   text-transform: uppercase;
@@ -681,7 +695,7 @@ main > * {
 }
 
 .item-estimate {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   color: var(--ink-faint);
   background: var(--surface-sunken);
@@ -735,7 +749,7 @@ input[type='checkbox'].checkbox {
   flex-direction: row;
   align-items: center;
   gap: var(--sp-2);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -743,7 +757,7 @@ input[type='checkbox'].checkbox {
 }
 
 .list-bulk-count {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   letter-spacing: 0.03em;
   color: var(--ink-faint);
@@ -755,7 +769,7 @@ input[type='checkbox'].checkbox {
   align-items: baseline;
   gap: var(--sp-2);
   margin-right: var(--sp-2);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-variant-numeric: tabular-nums;
 }
 
@@ -786,7 +800,7 @@ input[type='checkbox'].checkbox {
 
 .empty-state {
   color: var(--ink-soft);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-sm);
   letter-spacing: 0.03em;
   text-align: center;
@@ -805,7 +819,7 @@ input[type='checkbox'].checkbox {
 
 .event-section-heading {
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -823,7 +837,7 @@ input[type='checkbox'].checkbox {
 }
 
 .item-recurrence-pattern {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-sm);
   color: var(--ink-soft);
   white-space: nowrap;
@@ -874,7 +888,7 @@ input[type='checkbox'].checkbox {
   border: none;
   padding: 4px 6px;
   color: var(--ink-soft);
-  font: 500 var(--fs-sm) / 1.2 var(--font-mono);
+  font: 500 var(--fs-sm) / 1.2 var(--font-label);
   text-transform: none;
   letter-spacing: normal;
 }
@@ -989,7 +1003,7 @@ input[type='checkbox'].checkbox {
 .notes-row-date {
   flex-shrink: 0;
   color: var(--ink-faint);
-  font: 500 var(--fs-xs) / 1 var(--font-mono);
+  font: 500 var(--fs-xs) / 1 var(--font-label);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -1010,7 +1024,7 @@ input[type='checkbox'].checkbox {
 .note-page-meta {
   margin: 0;
   color: var(--ink-faint);
-  font: 500 var(--fs-sm) / 1 var(--font-mono);
+  font: 500 var(--fs-sm) / 1 var(--font-label);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -1044,7 +1058,7 @@ input[type='checkbox'].checkbox {
 .note-preview-meta {
   margin: var(--sp-1) 0 0;
   color: var(--ink-faint);
-  font: 500 var(--fs-xs) / 1 var(--font-mono);
+  font: 500 var(--fs-xs) / 1 var(--font-label);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -1052,7 +1066,7 @@ input[type='checkbox'].checkbox {
 .note-preview-link {
   align-self: flex-start;
   color: var(--rail);
-  font: 500 var(--fs-sm) / 1 var(--font-mono);
+  font: 500 var(--fs-sm) / 1 var(--font-label);
 }
 
 .note-preview-body {
@@ -1154,7 +1168,7 @@ input[type='checkbox'].checkbox {
   padding: var(--sp-1) var(--sp-2);
   background: var(--surface-sunken);
   color: var(--ink-faint);
-  font: 500 var(--fs-xs) / 1 var(--font-mono);
+  font: 500 var(--fs-xs) / 1 var(--font-label);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -1163,7 +1177,7 @@ input[type='checkbox'].checkbox {
   margin: 0;
   padding: var(--sp-3);
   overflow-x: auto;
-  font: 400 var(--fs-sm) / 1.5 var(--font-mono);
+  font: 400 var(--fs-sm) / 1.5 var(--font-label);
 }
 
 .notion-toggle summary {
@@ -1188,7 +1202,7 @@ input[type='checkbox'].checkbox {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   color: var(--rail);
-  font: 500 var(--fs-sm) / 1 var(--font-mono);
+  font: 500 var(--fs-sm) / 1 var(--font-label);
 }
 
 .notion-fallback {
@@ -1227,7 +1241,7 @@ input[type='checkbox'].checkbox {
 
 .calendar-weekday {
   text-align: center;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--ink-faint);
@@ -1280,7 +1294,7 @@ input[type='checkbox'].checkbox {
 }
 
 .calendar-cell-daynum {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   font-weight: 500;
   color: var(--ink-soft);
@@ -1294,7 +1308,7 @@ input[type='checkbox'].checkbox {
 }
 
 .calendar-chip {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   font-weight: 500;
   text-transform: none;
@@ -1372,7 +1386,7 @@ input[type='checkbox'].checkbox {
   align-items: center;
   justify-content: center;
   padding: var(--sp-1);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   color: var(--ink-faint);
   text-align: center;
@@ -1388,7 +1402,7 @@ input[type='checkbox'].checkbox {
 }
 
 .time-grid-day-weekday {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   color: var(--ink-faint);
   text-transform: uppercase;
@@ -1437,7 +1451,7 @@ input[type='checkbox'].checkbox {
   box-sizing: border-box;
   padding: 2px var(--sp-2) 0 0;
   text-align: right;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   color: var(--ink-faint);
 }
@@ -1529,7 +1543,7 @@ input[type='checkbox'].checkbox {
 }
 
 .time-block-time {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: 0.6875rem;
   opacity: 0.75;
   overflow: hidden;
@@ -1627,7 +1641,7 @@ input[type='checkbox'].checkbox {
 
 .dialog-item-meta {
   flex-shrink: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   color: var(--ink-faint);
   white-space: nowrap;
@@ -1734,6 +1748,54 @@ input[type='checkbox'].checkbox {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Spring personality overrides
+   -----------------------------------------------------------------------
+   Everything above is written for the cyberpunk theme's "technical HUD
+   readout" register: small labels/badges/nav in an uppercase, tracked,
+   monospace-adjacent face. Colors, fonts, radius, spacing, shadow and
+   motion already swap automatically per-theme via tokens — this block
+   is the small remainder that can't be expressed as a single CSS value:
+   switching label case/tracking, and retiring the cyberpunk-only neon
+   flourishes (the brand-mark flicker, the glowing headline) that would
+   read as "electric" rather than "soft" in a warm spring theme. A third
+   theme closer to cyberpunk's register wouldn't need a block like this
+   at all; one closer to spring's would extend it. */
+[data-theme='spring'] button,
+[data-theme='spring'] label,
+[data-theme='spring'] .sidebar-nav-item,
+[data-theme='spring'] .bg-image-toggle,
+[data-theme='spring'] .today-chip,
+[data-theme='spring'] .list-show-completed,
+[data-theme='spring'] .reminder-row-datetime,
+[data-theme='spring'] .item-badge,
+[data-theme='spring'] .list-bulk-select-all,
+[data-theme='spring'] .event-section-heading,
+[data-theme='spring'] .notes-row-count,
+[data-theme='spring'] .notes-row-date,
+[data-theme='spring'] .note-page-meta,
+[data-theme='spring'] .note-preview-meta,
+[data-theme='spring'] .notion-code-lang,
+[data-theme='spring'] .calendar-weekday,
+[data-theme='spring'] .time-grid-day-weekday {
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+[data-theme='spring'] .item-badge,
+[data-theme='spring'] .today-chip,
+[data-theme='spring'] .sidebar-nav-item.active {
+  border-radius: var(--radius-lg);
+}
+
+[data-theme='spring'] .sidebar-mark {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent-2) 55%, transparent));
+  animation: shell-in-up var(--duration-slow) var(--ease-out) both;
+}
+
+[data-theme='spring'] .app-header h1 {
+  text-shadow: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

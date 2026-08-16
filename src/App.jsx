@@ -22,10 +22,19 @@ const TAB_TITLES = {
   'add-reminder': 'Add reminder',
 }
 
+// Each theme brings its own matching background photo (wired in CSS via
+// html[data-theme] body::before) — this list is just the switcher's
+// labels, plus the toggle's own label so it reads correctly either way.
+const THEMES = [
+  { id: 'melancholic-cyberpunk', label: 'Night City', bgLabel: 'City photo' },
+  { id: 'spring', label: 'Spring', bgLabel: 'Blossom photo' },
+]
+
 export default function App() {
   const [items, setItems] = useLocalStorage('college-tracker-items', [])
   const [reminders, setReminders] = useLocalStorage('college-tracker-reminders', [])
   const [bgImageOn, setBgImageOn] = useLocalStorage('college-tracker-bg-image', true)
+  const [theme, setTheme] = useLocalStorage('college-tracker-theme', THEMES[0].id)
   const google = useGoogleCalendar()
   const notion = useNotionNotes()
   const [activeTab, setActiveTab] = useState('calendar')
@@ -52,12 +61,18 @@ export default function App() {
     window.history.replaceState(null, '', window.location.pathname)
   }, [])
 
-  // Independent of the theme itself — the city photo is purely a CSS
-  // layer gated on this attribute, so toggling it never touches which
-  // theme tokens are applied.
+  // Independent of the theme itself — the background photo is purely a
+  // CSS layer gated on this attribute, so toggling it never touches
+  // which theme tokens are applied.
   useEffect(() => {
     document.documentElement.dataset.bgImage = bgImageOn ? 'on' : 'off'
   }, [bgImageOn])
+
+  // Colors, fonts, radius, spacing, motion, and the matching background
+  // photo all swap together off this one attribute.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+  }, [theme])
 
   const allItems = [...items, ...google.events]
   const taskItems = allItems.filter((item) => item.kind === 'task')
@@ -206,6 +221,9 @@ export default function App() {
         google={google}
         bgImageOn={bgImageOn}
         onToggleBgImage={() => setBgImageOn((prev) => !prev)}
+        theme={theme}
+        themes={THEMES}
+        onThemeChange={setTheme}
       />
 
       <div className="app-main">

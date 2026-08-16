@@ -10,7 +10,18 @@ const NAV_ITEMS = [
   { key: 'add', label: 'Add', icon: PlusIcon },
 ]
 
-export default function Sidebar({ activeTab, onSelect, google, bgImageOn, onToggleBgImage }) {
+export default function Sidebar({
+  activeTab,
+  onSelect,
+  google,
+  bgImageOn,
+  onToggleBgImage,
+  theme,
+  themes,
+  onThemeChange,
+}) {
+  const activeThemeMeta = themes.find((t) => t.id === theme) ?? themes[0]
+
   return (
     <nav className="sidebar" aria-label="Sections">
       <div className="sidebar-brand">
@@ -37,6 +48,19 @@ export default function Sidebar({ activeTab, onSelect, google, bgImageOn, onTogg
       </div>
 
       <div className="sidebar-footer">
+        <div className="segmented theme-switcher" role="group" aria-label="Theme">
+          {themes.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={theme === t.id ? 'active' : ''}
+              aria-pressed={theme === t.id}
+              onClick={() => onThemeChange(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
         <button
           type="button"
           className={`bg-image-toggle${bgImageOn ? ' active' : ''}`}
@@ -44,7 +68,7 @@ export default function Sidebar({ activeTab, onSelect, google, bgImageOn, onTogg
           onClick={onToggleBgImage}
         >
           <CityIcon />
-          <span>City BG</span>
+          <span>{activeThemeMeta.bgLabel}</span>
           <span className="bg-image-toggle-state">{bgImageOn ? 'On' : 'Off'}</span>
         </button>
         <GoogleCalendarStatus google={google} />

@@ -1,56 +1,43 @@
 /* ---------------------------------------------------------------------
    Theme system
    -----------------------------------------------------------------------
-   Structural tokens (spacing, radius, type scale, motion) live in the
-   bare :root — they don't change with the palette.
+   Everything that gives a theme its personality — palette, fonts, type
+   weight, spacing density, corner radius, shadow/glow, motion easing —
+   lives under a `[data-theme="…"]` block, keyed off a `data-theme`
+   attribute on <html> (set in index.html, changed at runtime by the
+   theme switcher in the sidebar, persisted to localStorage). Only the
+   type *scale* (--fs-*, sizes only, not weight) stays in the bare
+   :root, since font sizing doesn't need to change with personality.
 
-   Palette + font tokens live under [data-theme="…"], keyed off a
-   `data-theme` attribute on <html> (set in index.html). This is preset
-   #1, "melancholic-cyberpunk": Night-City-on-a-clear-night — a near-black
-   base so saturated neon (cyan, hot magenta, electric violet) can scream
-   against it with heavy glow/bloom. The melancholy lives in the
-   composition, not the saturation: a hard vignette, lonely negative
-   space, and glow that's concentrated in a few dramatic spots rather
-   than smeared evenly — a wistful city, not a happy one.
+   Two presets:
+   - "melancholic-cyberpunk" — Night-City-on-a-clear-night. Near-black
+     base, saturated neon with heavy glow/bloom, sharp geometric HUD
+     type, tight sharp-cornered spacing. Precise and technical.
+   - "spring" — warm cream base, soft cherry-blossom/sky-blue pastels,
+     rounded warm type, airy rounded-corner spacing, soft diffuse
+     shadows instead of glow. Free, gentle, human — the emotional and
+     structural opposite of the cyberpunk theme, not just a repaint.
 
-   To add a second preset later: add another `[data-theme="name"] { … }`
-   block redefining the same token names, then flip
-   `document.documentElement.dataset.theme` from a toggle (persist the
-   choice in localStorage). Nothing outside this file needs to change,
-   since every component reads colors/fonts through these variables.
+   Every component reads color/font/radius/spacing/motion exclusively
+   through these variables, so adding a third preset later is just
+   another `[data-theme="name"] { … }` block with the same token names
+   — nothing outside this file needs to change.
+
+   Component-level personality differences that can't be expressed as a
+   single CSS value (uppercase-tracked labels vs. sentence case, the
+   cyberpunk-only neon flicker/text-glow flourishes) live as a small,
+   consolidated set of `[data-theme="spring"] …` overrides in App.css,
+   grouped in one place rather than scattered.
    --------------------------------------------------------------------- */
 
 :root {
-  /* Type scale */
+  /* Type scale — sizes only; weight is theme-scoped below */
   --fs-xs: 0.75rem;
   --fs-sm: 0.8125rem;
   --fs-base: 1rem;
   --fs-lg: 1.125rem;
   --fs-xl: 1.5rem;
   --fs-2xl: 2.125rem;
-
-  /* Weight extremes — thin body copy, black display type */
-  --weight-thin: 200;
-  --weight-black: 900;
-
-  /* Spacing scale (4px base) */
-  --sp-1: 4px;
-  --sp-2: 8px;
-  --sp-3: 12px;
-  --sp-4: 16px;
-  --sp-5: 24px;
-  --sp-6: 32px;
-  --sp-7: 48px;
-  --sp-8: 64px;
-
-  --radius: 4px;
-  --radius-sm: 2px;
-
-  /* Motion — big enough to actually read as movement */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --duration-fast: 150ms;
-  --duration-base: 420ms;
-  --duration-slow: 750ms;
 }
 
 [data-theme='melancholic-cyberpunk'] {
@@ -97,6 +84,29 @@
   --tag-homework: #ffb020;
   --tag-homework-soft: rgba(255, 176, 32, 0.16);
 
+  /* Sharp, tight, technical */
+  --radius: 4px;
+  --radius-sm: 2px;
+  --radius-lg: 4px;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* Dramatic weight extremes for a HUD/signage scream */
+  --weight-thin: 200;
+  --weight-black: 900;
+
+  /* Snappy, expo-ish deceleration */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 420ms;
+  --duration-slow: 750ms;
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
   --shadow-md: 0 18px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(0, 229, 255, 0.08);
   --glow-sm: 0 0 0 1px rgba(0, 229, 255, 0.4), 0 0 14px rgba(0, 229, 255, 0.45);
@@ -105,10 +115,96 @@
 
   /* Type — Orbitron's blocky geometry at black weight for a HUD/signage
      scream, Sora at its thinnest for body copy: the more extreme the
-     weight gap, the louder the display type reads next to it. */
+     weight gap, the louder the display type reads next to it.
+     font-label is the small-caps/readout face used for badges, dates,
+     nav labels — IBM Plex Mono here for the technical-terminal feel. */
   --font-display: 'Orbitron', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Sora', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --font-label: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+[data-theme='spring'] {
+  /* Color — pulled from the cherry-blossom photo itself: warm cream
+     ground (never stark white), sky blue as the primary accent, cherry
+     pink secondary, a soft wisteria lavender tertiary. All deepened
+     just enough to read as text/borders on a light ground — the pale
+     tints do the "soft" work, not the foreground colors themselves. */
+  --ink: #3a2e35;
+  --ink-soft: #7d6670;
+  --ink-faint: #ab8f9a;
+
+  --bg: #fdf6f3;
+  --surface: #ffffff;
+  --surface-sunken: #f7ebe9;
+  --line: rgba(58, 46, 53, 0.12);
+  --line-strong: rgba(58, 46, 53, 0.24);
+
+  --rail: #2b8ac9;
+  --rail-hover: #4aa3dc;
+  --rail-soft: rgba(43, 138, 201, 0.12);
+  --rail-glow: rgba(43, 138, 201, 0.35);
+  --rail-contrast: #ffffff;
+
+  --accent-2: #c94f7d;
+  --accent-2-hover: #dd6f96;
+  --accent-2-soft: rgba(201, 79, 125, 0.12);
+  --accent-2-glow: rgba(201, 79, 125, 0.3);
+
+  --accent-3: #8f6bc4;
+  --accent-3-soft: rgba(143, 107, 196, 0.12);
+  --accent-3-glow: rgba(143, 107, 196, 0.28);
+
+  --flag: #d1503f;
+  --flag-hover: #e06f5e;
+  --flag-soft: rgba(209, 80, 63, 0.14);
+
+  --tag-quiz: #3f9483;
+  --tag-quiz-soft: rgba(63, 148, 131, 0.14);
+  --tag-paper: #c15f8a;
+  --tag-paper-soft: rgba(193, 95, 138, 0.14);
+  --tag-project: #5e9650;
+  --tag-project-soft: rgba(94, 150, 80, 0.14);
+  --tag-homework: #b8801f;
+  --tag-homework-soft: rgba(184, 128, 31, 0.14);
+
+  /* Rounded, airy — the structural opposite of the cyberpunk theme's
+     tight sharp corners, not just a different palette on the same
+     shapes. */
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 999px;
+  --sp-1: 6px;
+  --sp-2: 10px;
+  --sp-3: 16px;
+  --sp-4: 22px;
+  --sp-5: 32px;
+  --sp-6: 44px;
+  --sp-7: 64px;
+  --sp-8: 88px;
+
+  /* Gentle weight contrast — relaxed, not dramatic */
+  --weight-thin: 400;
+  --weight-black: 700;
+
+  /* Soft deceleration, unhurried pacing */
+  --ease-out: cubic-bezier(0.22, 0.9, 0.32, 1);
+  --duration-fast: 180ms;
+  --duration-base: 500ms;
+  --duration-slow: 900ms;
+
+  /* Diffuse warm-gray shadows, not glow rings */
+  --shadow-sm: 0 1px 3px rgba(120, 90, 100, 0.14);
+  --shadow-md: 0 16px 36px rgba(120, 90, 100, 0.16), 0 2px 8px rgba(120, 90, 100, 0.1);
+  --glow-sm: 0 0 0 1px rgba(43, 138, 201, 0.3), 0 4px 14px rgba(43, 138, 201, 0.16);
+  --glow-md: 0 0 0 1px rgba(43, 138, 201, 0.32), 0 8px 22px rgba(43, 138, 201, 0.2);
+
+  /* Type — Fredoka's rounded warmth for headers, Nunito for body: warm
+     humanist curves standing in for Orbitron/Sora's sharp geometry.
+     font-label reuses the body face (no separate readout/mono face —
+     Spring never wants a "terminal" register). */
+  --font-display: 'Fredoka', ui-rounded, system-ui, sans-serif;
+  --font-body: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  --font-label: 'Nunito', ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -117,6 +213,11 @@
   color: var(--ink);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  transition: color var(--duration-base) var(--ease-out), background-color var(--duration-base) var(--ease-out);
+}
+
+[data-theme='spring'] {
+  color-scheme: light;
 }
 
 * {
@@ -126,14 +227,21 @@
 body {
   margin: 0;
   background-color: var(--bg);
+  transition: background-color var(--duration-base) var(--ease-out);
 }
 
-/* City photo layer — off by default, faded in only when
-   html[data-bg-image="on"]. Sits behind the grid/glow layer below it
-   (::before paints under ::after), darkened and vignetted toward the
-   edges (where UI content lives) but genuinely visible through the
-   middle. Toggling this is independent of the theme itself: the
-   palette above applies in full either way.
+/* Background photo + atmosphere layers
+   -----------------------------------------------------------------------
+   Two fixed, full-viewport layers behind all content:
+     ::before — the theme's photo, faded in only when html[data-bg-image
+       ="on"]. Independent of theme choice: toggling this never touches
+       which theme is applied.
+     ::after  — the theme's own always-on ambient atmosphere (grid+glow
+       for cyberpunk, soft pastel blooms for spring), painted above the
+       photo so it reads as one consistent scene.
+   Structural properties (position/z-index/opacity-toggle/transition)
+   are shared; background-image/size/position/filter are theme-scoped
+   since each photo needs its own crop, wash, and vignette treatment.
 
    z-index is 0, not negative: body's own solid background-color paints
    ahead of negative-z-index fixed children in this stacking arrangement
@@ -145,15 +253,8 @@ body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image:
-    linear-gradient(rgba(5, 4, 11, 0.22), rgba(5, 4, 11, 0.42)),
-    radial-gradient(ellipse 90% 85% at 50% 26%, transparent 0%, rgba(5, 4, 11, 0.3) 45%, rgba(5, 4, 11, 0.88) 100%),
-    url('/night-city.jpeg');
-  background-size: 100% 100%, 100% 100%, cover;
-  background-position: center, center, center 22%;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  filter: saturate(1.3) contrast(1.05);
   opacity: 0;
   transition: opacity var(--duration-slow) var(--ease-out);
 }
@@ -162,17 +263,28 @@ html[data-bg-image='on'] body::before {
   opacity: 1;
 }
 
-/* Tech-grid + neon ambient glow — always on, regardless of the photo
-   toggle, and painted above the photo layer (same z-index as ::before;
-   ::after always paints above ::before for a shared element) so the
-   grid/scanline texture reads as part of the same atmosphere as the
-   skyline. */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  transition: background-image var(--duration-base) var(--ease-out);
+}
+
+html[data-theme='melancholic-cyberpunk'] body::before {
+  background-image:
+    linear-gradient(rgba(5, 4, 11, 0.22), rgba(5, 4, 11, 0.42)),
+    radial-gradient(ellipse 90% 85% at 50% 26%, transparent 0%, rgba(5, 4, 11, 0.3) 45%, rgba(5, 4, 11, 0.88) 100%),
+    url('/night-city.jpeg');
+  background-size: 100% 100%, 100% 100%, cover;
+  background-position: center, center, center 22%;
+  filter: saturate(1.3) contrast(1.05);
+}
+
+html[data-theme='melancholic-cyberpunk'] body::after {
   background-image:
     linear-gradient(rgba(0, 229, 255, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 229, 255, 0.035) 1px, transparent 1px),
@@ -180,7 +292,24 @@ body::after {
     radial-gradient(ellipse 900px 640px at 98% 12%, rgba(255, 43, 214, 0.12), transparent 58%),
     radial-gradient(ellipse 1100px 800px at 50% 118%, rgba(139, 45, 255, 0.14), transparent 62%);
   background-size: 28px 28px, 28px 28px, 100% 100%, 100% 100%, 100% 100%;
-  background-attachment: fixed;
+}
+
+html[data-theme='spring'] body::before {
+  background-image:
+    linear-gradient(rgba(253, 246, 243, 0.32), rgba(253, 246, 243, 0.48)),
+    radial-gradient(ellipse 90% 85% at 50% 32%, transparent 0%, rgba(253, 246, 243, 0.3) 45%, rgba(253, 246, 243, 0.94) 100%),
+    url('/cherry-blossom.jpeg');
+  background-size: 100% 100%, 100% 100%, cover;
+  background-position: center, center, center 38%;
+  filter: saturate(1.05) brightness(1.02);
+}
+
+html[data-theme='spring'] body::after {
+  background-image:
+    radial-gradient(ellipse 900px 600px at 8% -6%, rgba(43, 138, 201, 0.12), transparent 60%),
+    radial-gradient(ellipse 800px 600px at 96% 8%, rgba(201, 79, 125, 0.12), transparent 58%),
+    radial-gradient(ellipse 1000px 800px at 50% 116%, rgba(143, 107, 196, 0.1), transparent 62%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
 }
 
 h1, h2 {
@@ -192,7 +321,7 @@ h1, h2 {
 }
 
 button {
-  font: 600 var(--fs-sm) / 1 var(--font-mono);
+  font: 600 var(--fs-sm) / 1 var(--font-label);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   cursor: pointer;
@@ -207,7 +336,7 @@ button {
 }
 
 button:hover {
-  background: rgba(0, 229, 255, 0.2);
+  background: color-mix(in srgb, var(--rail) 20%, transparent);
   border-color: var(--rail-hover);
   color: var(--rail-hover);
   box-shadow: var(--glow-sm);
@@ -232,7 +361,7 @@ button.secondary:hover {
 }
 
 button.active {
-  background: rgba(0, 229, 255, 0.18);
+  background: color-mix(in srgb, var(--rail) 18%, transparent);
   color: var(--rail-hover);
   border-color: var(--rail);
   box-shadow: var(--glow-sm);
@@ -245,10 +374,11 @@ button.danger-solid {
 }
 
 button.danger-solid:hover {
-  background: rgba(255, 59, 59, 0.24);
+  background: color-mix(in srgb, var(--flag) 24%, transparent);
   border-color: var(--flag-hover);
   color: var(--flag-hover);
-  box-shadow: 0 0 0 1px rgba(255, 59, 59, 0.4), 0 0 14px rgba(255, 59, 59, 0.4);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--flag) 40%, transparent),
+    0 0 14px color-mix(in srgb, var(--flag) 40%, transparent);
 }
 
 button.ghost {
@@ -279,12 +409,13 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 1px solid var(--rail);
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.22);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--rail) 22%, transparent);
 }
 
 input, select, textarea {
-  /* Deliberately not `font: inherit` — labels are mono/uppercase for the
-     HUD readout look, but typed content stays in the readable body face. */
+  /* Deliberately not `font: inherit` — labels use the label face/case
+     for a readout look in some themes, but typed content always stays
+     in the readable body face. */
   font-family: var(--font-body);
   font-size: var(--fs-base);
   font-weight: 400;
@@ -313,7 +444,7 @@ label {
   display: flex;
   flex-direction: column;
   gap: var(--sp-1);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--fs-xs);
   font-weight: 500;
   letter-spacing: 0.04em;
@@ -323,7 +454,7 @@ label {
 }
 
 ::selection {
-  background: rgba(0, 229, 255, 0.32);
+  background: color-mix(in srgb, var(--rail) 32%, transparent);
   color: var(--ink);
 }
 
