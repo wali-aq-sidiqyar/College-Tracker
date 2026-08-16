@@ -4,7 +4,12 @@ import { fileURLToPath } from 'node:url'
 import { google } from 'googleapis'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const TOKENS_PATH = path.join(__dirname, 'tokens.json')
+// In the packaged Electron app this points at a writable user-data
+// directory (set by electron/main.cjs when it forks this server) —
+// server/ itself lives inside the read-only app bundle there. Dev and
+// the plain `node server/index.js` workflow fall back to the current
+// behavior: right next to this file.
+const TOKENS_PATH = process.env.TOKENS_PATH || path.join(__dirname, 'tokens.json')
 
 // Read/write access to events (not full calendar management) — the
 // narrowest scope that still supports create/edit/delete.
@@ -24,6 +29,7 @@ function loadTokens() {
 }
 
 function saveTokens(tokens) {
+  fs.mkdirSync(path.dirname(TOKENS_PATH), { recursive: true })
   fs.writeFileSync(TOKENS_PATH, JSON.stringify(tokens, null, 2))
 }
 
