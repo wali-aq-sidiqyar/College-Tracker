@@ -53,6 +53,13 @@ function startServer() {
         // somewhere writable. See server/googleAuth.js — this is
         // exactly the override Phase 2 added.
         TOKENS_PATH: path.join(app.getPath('userData'), 'tokens.json'),
+        // .env's FRONTEND_URL (localhost:5173) is correct for `npm run
+        // dev:all`'s separate Vite dev server, but frontend and backend
+        // share one origin here (Phase 1) — the OAuth callback route
+        // redirects the browser to FRONTEND_URL after a successful
+        // exchange, so leaving the dev value in place sends a
+        // successful connection to a dead port in the packaged app.
+        FRONTEND_URL: BASE_URL,
       },
       stdio: 'pipe',
     })
@@ -105,12 +112,34 @@ function createWindow() {
   // and completes the flow normally. We just poll /auth/status
   // afterward and reload the window once it flips to connected, since
   // the callback response lands in the system browser, not back here.
-  mainWindow.webContents.on('will-navigate', (event, url) => {
+  //
+  // The tricky part: our own /auth/google route reaches Google via an
+  // HTTP 302, and Electron does NOT fire `will-navigate` for
+  // redirect-driven navigations — only `will-redirect`. Listening to
+  // `will-navigate` alone let that first hop load Google's sign-in page
+  // directly inside the embedded window every time, which is worse
+  // than just ugly: proceeding from inside the embedded session (before
+  // Google's later same-page bounce got caught) handed the system
+  // browser a degraded/interstitial URL instead of the original
+  // well-formed OAuth request, which is what actually produced the 504
+  // — not a real backend problem. Handling both events, plus a
+  // window-open interceptor in case Google ever uses a popup instead of
+  // a same-window redirect, catches it at the very first hop so the
+  // embedded window never renders any Google content at all.
+  const interceptGoogleAuth = (event, url) => {
+    if (!url.startsWith('https://accounts.google.com')) return
+    event.preventDefault()
+    shell.openExternal(url)
+    pollForConnection()
+  }
+  mainWindow.webContents.on('will-navigate', interceptGoogleAuth)
+  mainWindow.webContents.on('will-redirect', interceptGoogleAuth)
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https://accounts.google.com')) {
-      event.preventDefault()
       shell.openExternal(url)
       pollForConnection()
     }
+    return { action: 'deny' }
   })
 }
 
