@@ -11,7 +11,7 @@
 // build — this is process supervision + window chrome, nothing more.
 const { app, BrowserWindow, shell } = require('electron')
 const path = require('node:path')
-const { fork } = require('node:child_process')
+const { fork, execFile } = require('node:child_process')
 
 const isPackaged = app.isPackaged
 
@@ -42,6 +42,34 @@ const BASE_URL = `http://localhost:${PORT}`
 
 let serverProcess = null
 let mainWindow = null
+
+// Every external link (Google's OAuth consent screen, Notion note
+// links, anything else the app opens outside its own window) goes
+// through here so they all land in the same browser, on purpose:
+// shell.openExternal() only opens whatever macOS considers the current
+// default browser, with no way to name a specific app. `open -a` is
+// the actual macOS mechanism for that. execFile (not exec) because the
+// URL is an argument, not shell-interpolated text — no injection risk
+// from a URL containing shell metacharacters.
+//
+// Limitation worth knowing: `open -a "Google Chrome"` picks whichever
+// Chrome *profile* Chrome itself currently treats as the one to use
+// for a new tab/window (generally the last-focused Chrome window) —
+// macOS has no concept of "profile" at the `open` level, only "which
+// app". If Chrome is signed into the right account in the profile
+// that's frontmost/active, this lands there; it can't be pinned to a
+// specific profile by name from here. Selecting an exact profile would
+// mean invoking Chrome's own binary with --profile-directory=, which
+// needs the profile's internal directory name (not its display name)
+// and is a meaningfully more fragile mechanism than this.
+function openInChrome(url) {
+  execFile('open', ['-a', 'Google Chrome', url], (err) => {
+    if (err) {
+      console.error('[electron] could not open in Chrome, falling back to system default:', err.message)
+      shell.openExternal(url)
+    }
+  })
+}
 
 function startServer() {
   return new Promise((resolve, reject) => {
@@ -129,15 +157,22 @@ function createWindow() {
   const interceptGoogleAuth = (event, url) => {
     if (!url.startsWith('https://accounts.google.com')) return
     event.preventDefault()
-    shell.openExternal(url)
+    openInChrome(url)
     pollForConnection()
   }
   mainWindow.webContents.on('will-navigate', interceptGoogleAuth)
   mainWindow.webContents.on('will-redirect', interceptGoogleAuth)
+
+  // Every other external link (Notion notes, anything else rendered
+  // with target="_blank") also goes through openInChrome — always deny
+  // the new Electron window itself, since these should open as real
+  // browser tabs, never as a second app window.
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https://accounts.google.com')) {
-      shell.openExternal(url)
+      openInChrome(url)
       pollForConnection()
+    } else if (url.startsWith('http://') || url.startsWith('https://')) {
+      openInChrome(url)
     }
     return { action: 'deny' }
   })
